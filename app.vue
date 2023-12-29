@@ -1,4 +1,5 @@
 <template>
-  <div>
-    Hello </div>
+  <NuxtPage />
 </template>
+
+<!-- prettier, tailwindcss, -->
