@@ -23,5 +23,8 @@ const route = useRoute()
   </section>
   <section class=" max-w-[900px] mx-auto my-6 flex flex-col items-center">
     <h2 class="uppercase font-bold">Fixtures</h2>
+    <MatchFixture />
+    <MatchFixture />
+    <button class="capitalize text-white bg-primary font-bold py-2 px-6 rounded-[8px] mt-4">view all fixtures</button>
   </section>
 </template>
