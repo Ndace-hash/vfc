@@ -1,5 +1,5 @@
 <template>
-    <div class="relative overflow-hidden mx-auto flex h-[300px] max-w-[800px]">
+    <div class="relative overflow-hidden mx-auto flex h-[350px] max-w-[900px]">
         <div class="absolute z-0 flex items-center justify-center">
             <img src="../assets/images/hero-news.jpg" alt="" class="w-full h-full">
             <div class="absolute inset-0 bg-[#090808] bg-opacity-40"></div>
