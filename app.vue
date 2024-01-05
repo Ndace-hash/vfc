@@ -19,36 +19,36 @@
 
       <div class="flex items-center justify-center gap-6">
         <div class="bg-primary flex items-center justify-center w-[40px] h-[40px] rounded-full overflow-hidden">
-          <RouterLink to="/">
+          <a href="https://www.instagram.com/valiantfc.ng" target="_blank">
             <div class="w-[20px]">
 
               <img src="~/assets/images/instagram.png" alt="" class="w-full h-full">
             </div>
-          </RouterLink>
+          </a>
         </div>
         <div class="bg-primary flex items-center justify-center w-[40px] h-[40px] rounded-full overflow-hidden">
-          <RouterLink to="/">
+          <a href="https://x.com/valiantFC_ng" target="_blank">
             <div class="w-[20px]">
 
               <img src="~/assets/images/twitter.png" alt="" class="w-full h-full">
             </div>
-          </RouterLink>
+          </a>
         </div>
         <div class="bg-primary flex items-center justify-center w-[40px] h-[40px] rounded-full overflow-hidden">
-          <RouterLink to="/">
+          <a href="" target="_blank">
             <div class="w-[20px]">
 
               <img src="~/assets/images/tiktok.png" alt="" class="w-full h-full">
             </div>
-          </RouterLink>
+          </a>
         </div>
         <div class="bg-primary flex items-center justify-center w-[40px] h-[40px] rounded-full overflow-hidden">
-          <RouterLink to="/">
+          <a href="https://facebook.com/Valiantfcng" target="_blank">
             <div class="w-[15px]">
 
               <img src="~/assets/images/facebook.png" alt="" class="w-full h-full">
             </div>
-          </RouterLink>
+          </a>
         </div>
       </div>
       <div class="flex items-center justify-center gap-6">
@@ -67,6 +67,12 @@
     </footer>
   </main>
 </template>
+
+<script setup>
+import { useLeagueTable } from '@/composables/useCheerio'
+
+console.log(useLeagueTable())
+</script>
 
 <style lang="scss">
 .app {
