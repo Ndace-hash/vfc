@@ -1,9 +1,10 @@
 import axios from "axios";
 import * as cheerio from "cheerio";
 import { ref } from "vue";
+import type { TeamStat } from "~/types/Team";
 
 export default defineEventHandler(async (event) => {
-	const teams = ref<any>([]);
+	const teams = ref<TeamStat[]>([]);
 	const { data } = await axios.get(
 		"https://thecreativechampionship.com/tccl-table/"
 	);
@@ -14,17 +15,17 @@ export default defineEventHandler(async (event) => {
 	const $table = $body.find("table");
 
 	const $rows = $table.find("tbody tr").each((i, el) => {
-		const pos = $(el).find("td[data-label=Pos]").text();
+		const pos = Number($(el).find("td[data-label=Pos]").text());
 		const logo = $(el).find("td[data-label=Club] img").attr("src");
 		const name = $(el).find("td[data-label=Club]").text();
-		const MatchesPlayed = $(el).find("td[data-label=P]").text();
-		const MatchesWon = $(el).find("td[data-label=W]").text();
-		const MatchesDrawn = $(el).find("td[data-label=D]").text();
-		const MatchesLost = $(el).find("td[data-label=L]").text();
-		const F = $(el).find("td[data-label=F]").text();
-		const A = $(el).find("td[data-label=A]").text();
-		const goalDifference = $(el).find("td[data-label=GD]").text();
-		const Points = $(el).find("td[data-label=Pts]").text();
+		const matchesPlayed = Number($(el).find("td[data-label=P]").text());
+		const matchesWon = Number($(el).find("td[data-label=W]").text());
+		const matchesDrawn = Number($(el).find("td[data-label=D]").text());
+		const matchesLost = Number($(el).find("td[data-label=L]").text());
+		const goalScored = Number($(el).find("td[data-label=F]").text());
+		const goalAgainst = Number($(el).find("td[data-label=A]").text());
+		const goalDifference = Number($(el).find("td[data-label=GD]").text());
+		const points = Number($(el).find("td[data-label=Pts]").text());
 
 		teams.value.push({
 			pos,
@@ -32,14 +33,14 @@ export default defineEventHandler(async (event) => {
 				logo,
 				name,
 			},
-			MatchesPlayed,
-			MatchesWon,
-			MatchesDrawn,
-			MatchesLost,
-			F,
-			A,
+			matchesPlayed,
+			matchesWon,
+			matchesDrawn,
+			matchesLost,
+			goalScored,
+			goalAgainst,
 			goalDifference,
-			Points,
+			points,
 		});
 	});
 
