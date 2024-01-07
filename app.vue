@@ -35,7 +35,7 @@
           </a>
         </div>
         <div class="bg-primary flex items-center justify-center w-[40px] h-[40px] rounded-full overflow-hidden">
-          <a href="" target="_blank">
+          <a href="https://www.tiktok.com/@valiantfc_ng" target="_blank">
             <div class="w-[20px]">
 
               <img src="~/assets/images/tiktok.png" alt="" class="w-full h-full">
@@ -69,9 +69,7 @@
 </template>
 
 <script setup>
-import { useLeagueTable } from '@/composables/useCheerio'
 
-console.log(useLeagueTable())
 </script>
 
 <style lang="scss">
@@ -79,10 +77,10 @@ console.log(useLeagueTable())
   @apply w-full max-w-[1240px] mx-auto;
 
   &-header {
-    @apply py-4 justify-center items-center flex flex-col;
+    @apply pt-4 justify-center items-center flex flex-col shadow-md z-50;
 
     &-logo {
-      @apply w-[100px];
+      @apply w-[50px] md:w-[100px];
 
       img {
         @apply w-full h-full;
@@ -90,10 +88,10 @@ console.log(useLeagueTable())
     }
 
     &-nav {
-      @apply bg-primary w-full py-2 flex items-center justify-center;
+      @apply bg-primary w-full py-2 flex items-center justify-center text-sm md:text-lg;
 
       .nav-links {
-        @apply text-white uppercase flex items-center justify-center gap-16;
+        @apply text-white uppercase flex items-center justify-center md:gap-16 gap-6;
       }
     }
   }
