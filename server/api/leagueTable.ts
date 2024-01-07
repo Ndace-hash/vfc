@@ -14,7 +14,8 @@ export default defineEventHandler(async (event) => {
 
 	const $table = $body.find("table");
 
-	const $rows = $table.find("tbody tr").each((i, el) => {
+	const AllTables = [] as TeamStat[];
+	$table.find("tbody tr").each((i, el) => {
 		const pos = Number($(el).find("td[data-label=Pos]").text());
 		const logo = $(el).find("td[data-label=Club] img").attr("src");
 		const name = $(el).find("td[data-label=Club]").text();
@@ -27,7 +28,7 @@ export default defineEventHandler(async (event) => {
 		const goalDifference = Number($(el).find("td[data-label=GD]").text());
 		const points = Number($(el).find("td[data-label=Pts]").text());
 
-		teams.value.push({
+		AllTables.push({
 			pos,
 			club: {
 				logo,
@@ -43,6 +44,9 @@ export default defineEventHandler(async (event) => {
 			points,
 		});
 	});
+	for (let i = 0; i < 12; i++) {
+		teams.value.push(AllTables[i]);
+	}
 
 	return teams.value;
 });

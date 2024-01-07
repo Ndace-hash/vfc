@@ -1,15 +1,8 @@
 <script setup lang="ts">
 import LeagueTable from '~/components/LeagueTable.vue';
 import type { TeamStat } from '~/types/Team';
-const teamStat = ref<TeamStat[]>([]);
 const { data } = useFetch<TeamStat[]>('/api/leagueTable')
 
-if (data.value != null) {
-
-  for (let i = 0; i < 12; i++) {
-    teamStat.value.push(data.value[i])
-  }
-}
 
 const route = useRoute()
 </script>
@@ -50,7 +43,7 @@ const route = useRoute()
   <section class=" max-w-[900px] mx-auto my-6 flex flex-col items-center">
     <h2 class="uppercase font-bold">League Table</h2>
     <div class="flex items-center justify-center gap-3 my-4">
-      <LeagueTable :team-stat="teamStat" />
+      <LeagueTable :team-stat="data" />
     </div>
   </section>
 </template>
