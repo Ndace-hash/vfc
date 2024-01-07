@@ -1,24 +1,23 @@
 <template>
     <table>
         <thead>
-            <td>Pos</td>
-            <td>Team</td>
-            <td>P</td>
-            <td>W</td>
-            <td>D</td>
-            <td>L</td>
-            <td>GS</td>
-            <td>GC</td>
-            <td>GD</td>
-            <td>Pts</td>
+            <tr>
+                <td>Pos</td>
+                <td>Team</td>
+                <td>P</td>
+                <td>W</td>
+                <td>D</td>
+                <td>L</td>
+                <td>GS</td>
+                <td>GC</td>
+                <td>GD</td>
+                <td>Pts</td>
+            </tr>
         </thead>
         <tbody class="">
             <tr v-for="(team, i) in teamStat" :key="i">
                 <td>{{ team.pos }}</td>
                 <td class="min-w-max flex">
-                    <span>
-                        <img :src="team.club.logo" :alt="team.club.name">
-                    </span>
                     <span>
                         {{ team.club.name }}
                     </span>
