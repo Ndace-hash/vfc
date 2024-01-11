@@ -15,21 +15,22 @@
             </tr>
         </thead>
         <tbody class="">
-            <tr v-for="(team, i) in teamStat" :key="i">
-                <td>{{ team.pos }}</td>
+            <tr v-for="(team, i) in teamStat" :key="i"
+                :class="[team.club.name.toLowerCase() == 'valiant fc' ? 'bg-primary text-white' : 'bg-white text-black']">
+                <td class="text-center">{{ team.pos }}</td>
                 <td class="min-w-max flex">
                     <span>
                         {{ team.club.name }}
                     </span>
                 </td>
-                <td>{{ team.matchesPlayed }}</td>
-                <td>{{ team.matchesWon }}</td>
-                <td>{{ team.matchesDrawn }}</td>
-                <td>{{ team.matchesLost }}</td>
-                <td>{{ team.goalScored }}</td>
-                <td>{{ team.goalAgainst }}</td>
-                <td>{{ team.goalDifference }}</td>
-                <td>{{ team.points }}</td>
+                <td class="text-center">{{ team.matchesPlayed }}</td>
+                <td class="text-center">{{ team.matchesWon }}</td>
+                <td class="text-center">{{ team.matchesDrawn }}</td>
+                <td class="text-center">{{ team.matchesLost }}</td>
+                <td class="text-center">{{ team.goalScored }}</td>
+                <td class="text-center">{{ team.goalAgainst }}</td>
+                <td class="text-center">{{ team.goalDifference }}</td>
+                <td class="text-center">{{ team.points }}</td>
             </tr>
         </tbody>
     </table>
@@ -49,7 +50,7 @@ table {
         @apply bg-primary text-white font-semibold w-full;
 
         td {
-            @apply px-4 py-1 w-full;
+            @apply px-1 lg:px-4 py-1 w-full;
         }
     }
 
@@ -60,7 +61,7 @@ table {
             @apply border-b border-primary;
 
             td {
-                @apply px-4 py-2;
+                @apply px-1 lg:px-4 py-2;
             }
         }
     }
