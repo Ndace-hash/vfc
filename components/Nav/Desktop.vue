@@ -8,7 +8,7 @@
         <div class="app-header-nav">
             <nav class="nav-links">
                 <RouterLink to="/players">Player</RouterLink>
-                <RouterLink to="/">Club</RouterLink>
+                <RouterLink to="/club">Club</RouterLink>
                 <RouterLink to="/">Fixtures</RouterLink>
             </nav>
         </div>
