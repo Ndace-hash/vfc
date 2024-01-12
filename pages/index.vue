@@ -3,13 +3,41 @@ import LeagueTable from '~/components/LeagueTable.vue';
 import type { TeamStat } from '~/types/Team';
 const { data } = useFetch<TeamStat[]>('/api/leagueTable')
 
-
 const route = useRoute()
 </script>
 
 <template>
-  <section class="w-full mx-auto ">
-    <CaroselItem />
+  <section class="w-full mx-auto overflow-hidden max-w-[900px]">
+    <Swiper :modules="[SwiperAutoplay, SwiperEffectCreative]" :slides-per-view="1" :speed="4000" :loop="true"
+      :effect="'creative'" :autoplay="{
+        delay: 3000,
+        disableOnInteraction: true
+      }" :creative-effect="{
+  prev: {
+    shadow: true,
+    translate: ['-100%', 0, -1],
+  },
+  next: {
+    translate: ['100%', 0, 0],
+  },
+}">
+      <SwiperSlide>
+        <CaroselItem />
+      </SwiperSlide>
+
+      <SwiperSlide>
+        <CaroselItem />
+      </SwiperSlide>
+
+      <SwiperSlide>
+        <CaroselItem />
+      </SwiperSlide>
+
+      <SwiperSlide>
+        <CaroselItem />
+      </SwiperSlide>
+    </Swiper>
+
     <div class="w-full flex items-center justify-center gap-4 mt-4">
       <div class="w-[10px] h-[10px] border-2 border-primary rounded-full bg-primary"></div>
       <div class="w-[10px] h-[10px] border-2 border-primary rounded-full "></div>
@@ -41,7 +69,7 @@ const route = useRoute()
     </div>
   </section>
   <section class=" max-w-[900px] mx-auto my-6 flex flex-col items-center">
-    <h2 class="uppercase font-bold">League Table</h2>
+    <h2 class="uppercase font-bold">Standings</h2>
     <div class="flex items-center justify-center gap-3 my-4">
       <LeagueTable :team-stat="data" />
     </div>
