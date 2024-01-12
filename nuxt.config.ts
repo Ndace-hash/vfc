@@ -17,7 +17,7 @@ export default defineNuxtConfig({
       title:"Valiant FC"
     }
   },
-  modules: ['@nuxtjs/tailwindcss', "@nuxt/content"],
+  modules: ['@nuxtjs/tailwindcss', "@nuxt/content", "nuxt-swiper"],
   tailwindcss:{
      configPath: './tailwind.config.js',
   }
