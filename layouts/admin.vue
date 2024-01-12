@@ -12,12 +12,15 @@
                     </span>
                 </RouterLink>
                 <RouterLink to="/admin" class="font-bold capitalize">dashboard </RouterLink>
-                <RouterLink to="/admin" class="font-bold capitalize">players</RouterLink>
+                <RouterLink to="/admin/players" class="font-bold capitalize">players</RouterLink>
                 <RouterLink to="/admin" class="font-bold capitalize">News</RouterLink>
             </nav>
 
         </section>
-        <slot />
+        <section class="bg-admin-light w-full">
+
+            <slot />
+        </section>
     </main>
 </template>
 
