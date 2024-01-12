@@ -62,7 +62,7 @@
 
 <style lang="scss">
 .app {
-  @apply max-w-[2680px] w-full mx-auto;
+  @apply max-w-[2680px] w-full mx-auto overflow-hidden;
 
 }
 </style>

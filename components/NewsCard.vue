@@ -5,7 +5,8 @@
         </div>
         <div class="w-1/2 md:w-full ms-3 flex flex-col gap-3 md:gap-4 py-2">
             <p class="font-semibold text-base md:text-lg">Lorem ipsum header</p>
-            <p class="max-w-[400px] text-xs md:text-base">Hello what is happening? hyiipoklzik judosjd;lkj jsoioje jzjpodj
+            <p class="max-w-[400px] text-xs md:text-base">Hello what is happening? hyiipoklzik judosjd;lkj jsoioje
+                jzjpodj
                 lj zojdml
                 jzjoi</p>
             <p class="text-xs">1hr ago</p>
@@ -13,8 +14,7 @@
     </article>
 </template>
 
-<script setup>
-
+<script setup lang="ts">
 </script>
 
 <style lang="scss" scoped>
