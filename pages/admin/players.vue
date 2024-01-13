@@ -6,19 +6,23 @@
         <div class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-hidden">
             <div class="flex items-center py-4 px-4 justify-between border-b border-admin-light">
                 <button
-                    class="flex border-2 border-primary items-center justify-center gap-1  text-admin-dark font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
+                    class="flex bg-primary text-white border-2 border-primary items-center justify-center gap-1  text-admin-dark font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
                     @click="isOpen = true">
                     <span>Add player</span>
-                    <IconPlus width="30px" color="#9EB0A2" />
+                    <IconPlus width="30px" color="#ffffff" />
                 </button>
-                <div class="">
-                    <div class="">
-                        Search Player
-                    </div>
+                <div class="flex gap-2 items-center">
+                    <UButton
+                        class="bg-transparent text-admin-dark flex items-center border-2 border-primary hover:text-white"
+                        @click="refreshTable">
+                        <IconRefresh width="15px" />
+                        Refresh
+                    </UButton>
+                    <UInput v-model="q" placeholder="filter players..." />
                 </div>
             </div>
             <div class="h-[500px] overflow-y-scroll">
-                <UTable v-model="selected" :rows="players"
+                <UTable v-model="selected" :rows="filteredRows"
                     :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No players.' }" />
             </div>
         </div>
@@ -28,7 +32,7 @@
                     <h2 class="text-primary font-bold text-xl mb-2">Add a new player</h2>
                     <p class="text-sm text-admin-dark">Fill out the form to add a new player</p>
                 </template>
-                <UForm :state="state">
+                <UForm :state="state" @submit="addPlayer" ref="addPlayerForm">
                     <div class="flex items-center gap-4 mb-3">
 
                         <UFormGroup label="First Name" class="w-1/2">
@@ -60,59 +64,28 @@
                         <UInput v-model="state.stateOfOrigin" />
                     </UFormGroup>
 
+                    <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Add</UButton>
                 </UForm>
-                <template #footer>
-                    <UButton type="submit">Add</UButton>
-                </template>
             </UCard>
         </UModal>
+
     </section>
 </template>
 
 <script setup lang="ts">
+import { fireStore } from '~/config/firebase'
+import { getDocs, addDoc, collection } from 'firebase/firestore'
+import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
 definePageMeta({
     layout: 'admin'
 })
+const addPlayerForm = ref<HTMLFormElement | null>(null)
+const isLoading = ref(false)
 const isOpen = ref(false)
 const selected = ref([])
-const players = [{
-    id: 1,
-    name: 'Lindsay Walton',
-    title: 'Front-end Developer',
-    email: 'lindsay.walton@example.com',
-    role: 'Member'
-}, {
-    id: 2,
-    name: 'Courtney Henry',
-    title: 'Designer',
-    email: 'courtney.henry@example.com',
-    role: 'Admin'
-},
-{
-    id: 3,
-    name: 'Tom Cook',
-    title: 'Director of Product',
-    email: 'tom.cook@example.com',
-    role: 'Member'
-}, {
-    id: 4,
-    name: 'Whitney Francis',
-    title: 'Copywriter',
-    email: 'whitney.francis@example.com',
-    role: 'Admin'
-}, {
-    id: 5,
-    name: 'Leonard Krasner',
-    title: 'Senior Designer',
-    email: 'leonard.krasner@example.com',
-    role: 'Owner'
-}, {
-    id: 6,
-    name: 'Floyd Miles',
-    title: 'Principal Designer',
-    email: 'floyd.miles@example.com',
-    role: 'Member'
-}]
+const players = ref<QueryDocumentSnapshot<DocumentData, DocumentData>[]>([])
+
+
 
 const state = reactive({
     name: {
@@ -129,7 +102,46 @@ const state = reactive({
     stateOfOrigin: ''
 
 })
+const collectionRef = collection(fireStore, 'team')
 const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const addPlayer = async () => {
+    try {
+        isLoading.value = true
+        const docRef = await addDoc(collectionRef, state)
+        console.log(docRef)
+        isLoading.value = false
+        addPlayerForm.value?.reset()
+    } catch (e) {
+        isLoading.value = false
+        console.log(e)
+    }
+}
+onBeforeMount(async () => {
+    const snapshot = await getDocs(collectionRef)
+    snapshot.docs.forEach((doc) => {
+        players.value.push(doc)
+    })
+})
+
+const q = ref('')
+
+const filteredRows = computed(() => {
+    if (!q.value) {
+        return players.value
+    }
+
+    return players.value.filter((player) => {
+        return Object.values(player).some((value) => {
+            return String(value).toLowerCase().includes(q.value.toLowerCase())
+        })
+    })
+})
+const refreshTable = async () => {
+    const snapshot = await getDocs(collectionRef)
+    snapshot.docs.forEach((doc) => {
+        players.value.push(doc)
+    })
+}
 </script>
 
 <style scoped></style>
