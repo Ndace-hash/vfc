@@ -25,29 +25,39 @@
         <UModal v-model="isOpen">
             <UCard>
                 <template #header>
-                    <h2>Add a new player</h2>
-                    <p>Fill out the form to add a new player</p>
+                    <h2 class="text-primary font-bold text-xl mb-2">Add a new player</h2>
+                    <p class="text-sm text-admin-dark">Fill out the form to add a new player</p>
                 </template>
                 <UForm :state="state">
-                    <UFormGroup label="First Name">
-                        <UInput v-model="state.name.first" />
-                    </UFormGroup>
-                    <UFormGroup label="Last Name">
-                        <UInput v-model="state.name.last" />
-                    </UFormGroup>
-                    <UFormGroup label="Jersey Number">
-                        <UInput v-model="state.number" type="number" />
-                    </UFormGroup>
-                    <UFormGroup label="Date Of Birth">
-                        <UInput v-model="state.DoB.day" />
-                        <USelect v-model="state.DoB.month" :options="Months" />
-                        <UInput v-model="state.DoB.year" />
+                    <div class="flex items-center gap-4 mb-3">
+
+                        <UFormGroup label="First Name" class="w-1/2">
+                            <UInput v-model="state.name.first" />
+                        </UFormGroup>
+                        <UFormGroup label="Last Name" class="w-1/2">
+                            <UInput v-model="state.name.last" />
+                        </UFormGroup>
+                    </div>
+                    <div class="flex items-center gap-4 mb-3">
+
+                        <UFormGroup label="Position">
+                            <USelect v-model="state.position"
+                                :options="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
+                        </UFormGroup>
+                        <UFormGroup label="Jersey Number">
+                            <UInput v-model="state.number" />
+                        </UFormGroup>
+                    </div>
+                    <UFormGroup label="Date Of Birth" class="mb-3">
+
+                        <div class="flex gap-2">
+                            <UInput v-model="state.DoB.day" class="w-12 text-center" />
+                            <USelect v-model="state.DoB.month" :options="Months" class="w-1/4" />
+                            <UInput v-model="state.DoB.year" class="w-1/4" />
+                        </div>
                     </UFormGroup>
                     <UFormGroup label="State of Origin">
                         <UInput v-model="state.stateOfOrigin" />
-                    </UFormGroup>
-                    <UFormGroup label="Position">
-                        <USelect v-model="state.position" :options="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
                     </UFormGroup>
 
                 </UForm>
