@@ -14,8 +14,8 @@
                 <div class="flex gap-2 items-center">
                     <UButton
                         class="bg-transparent text-admin-dark flex items-center border-2 border-primary hover:text-white"
-                        @click="refreshTable">
-                        <IconRefresh width="15px" />
+                        @click="refreshTable" :disabled="isRefreshing">
+                        <IconRefresh width="15px" :class="isRefreshing ? 'duration-1000 ease-linear animate-spin' : ''" />
                         Refresh
                     </UButton>
                     <UInput v-model="q" placeholder="filter players..." />
@@ -61,7 +61,7 @@
                         </div>
                     </UFormGroup>
                     <UFormGroup label="State of Origin">
-                        <UInput v-model="state.stateOfOrigin" />
+                        <UInputMenu v-model="state.stateOfOrigin" :options="States" />
                     </UFormGroup>
 
                     <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Add</UButton>
@@ -104,6 +104,7 @@ const state = reactive({
 })
 const collectionRef = collection(fireStore, 'team')
 const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+const States = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara']
 const addPlayer = async () => {
     try {
         isLoading.value = true
@@ -136,11 +137,14 @@ const filteredRows = computed(() => {
         })
     })
 })
+const isRefreshing = ref(false)
 const refreshTable = async () => {
+    isRefreshing.value = true
     const snapshot = await getDocs(collectionRef)
     snapshot.docs.forEach((doc) => {
         players.value.push(doc)
     })
+    isRefreshing.value = false
 }
 </script>
 
