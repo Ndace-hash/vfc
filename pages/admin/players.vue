@@ -6,7 +6,7 @@
         <div class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-hidden">
             <div class="flex items-center py-4 px-4 justify-between border-b border-admin-light">
                 <button
-                    class="flex bg-primary text-white border-2 border-primary items-center justify-center gap-1  text-admin-dark font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
+                    class="flex bg-primary text-white border-2 border-primary items-center justify-center gap-1 font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
                     @click="isOpen = true">
                     <span>Add player</span>
                     <IconPlus width="30px" color="#ffffff" />
