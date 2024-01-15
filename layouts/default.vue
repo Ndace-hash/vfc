@@ -39,13 +39,13 @@
                     </a>
                 </div>
             </div>
-            <div class="flex items-center justify-center gap-6">
+            <!-- <div class="flex items-center justify-center gap-6">
                 <RouterLink to="/">Club</RouterLink>
                 <RouterLink to="/">Contact us</RouterLink>
                 <RouterLink to="/">Shop</RouterLink>
                 <RouterLink to="/">Tour</RouterLink>
                 <RouterLink to="/">Policy</RouterLink>
-            </div>
+            </div> -->
             <div class="w-[50px]">
                 <img src="/valiant.png" alt="" class="w-full h-full">
             </div>
