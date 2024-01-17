@@ -51,6 +51,9 @@
                         <UFormGroup label="Jersey Number">
                             <UInput v-model="state.number" />
                         </UFormGroup>
+                        <UFormGroup label="Gender">
+                            <USelect v-model="state.gender" :options="['Male', 'Female']" />
+                        </UFormGroup>
                     </div>
                     <UFormGroup label="Date Of Birth" class="mb-3">
 
@@ -75,7 +78,7 @@
 <script setup lang="ts">
 import { fireStore } from '~/config/firebase'
 import { getDocs, addDoc, collection } from 'firebase/firestore'
-import type { QueryDocumentSnapshot, DocumentData } from 'firebase/firestore';
+import type { Player } from '~/types/Player';
 definePageMeta({
     layout: 'admin'
 })
@@ -83,8 +86,7 @@ const addPlayerForm = ref<HTMLFormElement | null>(null)
 const isLoading = ref(false)
 const isOpen = ref(false)
 const selected = ref([])
-const players = ref<QueryDocumentSnapshot<DocumentData, DocumentData>[]>([])
-
+const players = ref<Player[]>([])
 
 
 const state = reactive({
@@ -99,10 +101,11 @@ const state = reactive({
         month: 'October',
         year: '1960'
     },
-    stateOfOrigin: ''
+    stateOfOrigin: '',
+    gender: ''
 
 })
-const collectionRef = collection(fireStore, 'team')
+const collectionRef = collection(fireStore, 'players')
 const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const States = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara']
 const addPlayer = async () => {
@@ -118,10 +121,27 @@ const addPlayer = async () => {
     }
 }
 onBeforeMount(async () => {
-    const snapshot = await getDocs(collectionRef)
-    snapshot.docs.forEach((doc) => {
-        players.value.push(doc)
-    })
+    try {
+        const snapshot = await getDocs(collectionRef)
+
+        snapshot.docs.forEach((doc) => {
+            const data = doc.data()
+
+            players.value.push({
+                id: doc.id,
+                first_name: String(data.name.first),
+                last_name: String(data.name.last),
+                gender: String(data.gender),
+                postion: String(data.position),
+                number: Number(data.number),
+                state_of_origin: String(data.stateOfOrigin),
+                date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`
+            }
+            )
+        })
+    } catch (e) {
+        console.log(e)
+    }
 })
 
 const q = ref('')
@@ -139,12 +159,31 @@ const filteredRows = computed(() => {
 })
 const isRefreshing = ref(false)
 const refreshTable = async () => {
-    isRefreshing.value = true
-    const snapshot = await getDocs(collectionRef)
-    snapshot.docs.forEach((doc) => {
-        players.value.push(doc)
-    })
-    isRefreshing.value = false
+    try {
+        players.value = []
+        isRefreshing.value = true
+        const snapshot = await getDocs(collectionRef)
+        snapshot.docs.forEach((doc) => {
+
+            const data = doc.data()
+            players.value.push({
+                id: doc.id,
+                first_name: String(data.name.first),
+                last_name: String(data.name.last),
+                gender: String(data.gender),
+                postion: String(data.position),
+                number: Number(data.number),
+                state_of_origin: String(data.stateOfOrigin),
+                date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`
+            }
+            )
+        })
+        console.log('success')
+        isRefreshing.value = false
+
+    } catch (e) {
+        console.log(e)
+    }
 }
 </script>
 
