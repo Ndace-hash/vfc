@@ -32,7 +32,7 @@
                     <h2 class="text-primary font-bold text-xl mb-2">Add a new player</h2>
                     <p class="text-sm text-admin-dark">Fill out the form to add a new player</p>
                 </template>
-                <UForm :state="state" @submit="addPlayer" ref="addPlayerForm">
+                <UForm :state="state" @submit="addPlayer">
                     <div class="flex items-center gap-4 mb-3">
 
                         <UFormGroup label="First Name" class="w-1/2">
@@ -114,7 +114,15 @@ const addPlayer = async () => {
         const docRef = await addDoc(collectionRef, state)
         console.log(docRef)
         isLoading.value = false
-        addPlayerForm.value?.reset()
+        state.DoB.day = '1'
+        state.DoB.month = 'October'
+        state.DoB.year = '1960'
+        state.name.first = ''
+        state.name.last = ''
+        state.gender = ''
+        state.number = undefined
+        state.position = ''
+        state.stateOfOrigin = ''
     } catch (e) {
         isLoading.value = false
         console.log(e)
