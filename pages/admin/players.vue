@@ -33,6 +33,21 @@
                     <p class="text-sm text-admin-dark">Fill out the form to add a new player</p>
                 </template>
                 <UForm :state="state" @submit="addPlayer">
+                    <div class="w-[150px] mb-4" v-show="!hidePreview">
+                        <img ref="imagePreview" class="w-full h-full" />
+                    </div>
+
+                    <UFormGroup label="Club logo " class="mb-4">
+
+                        <label for="club"
+                            class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
+                            <UIcon name="i-ant-design-upload-outlined" dynamic />
+                            Player Photo
+                        </label>
+                        <input type="file" id="club" ref="inputFile" class="hidden" accept=".jpg, .png, .jpeg"
+                            @change="previewFile" />
+                    </UFormGroup>
+
                     <div class="flex items-center gap-4 mb-3">
 
                         <UFormGroup label="First Name" class="w-1/2">
@@ -76,8 +91,9 @@
 </template>
 
 <script setup lang="ts">
-import { fireStore } from '~/config/firebase'
+import { fireStore, storage } from '~/config/firebase'
 import { getDocs, addDoc, collection } from 'firebase/firestore'
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import type { Player } from '~/types/Player';
 definePageMeta({
     layout: 'admin'
@@ -87,6 +103,7 @@ const isLoading = ref(false)
 const isOpen = ref(false)
 const selected = ref([])
 const players = ref<Player[]>([])
+const inputFile = ref<HTMLInputElement | null>()
 
 
 const state = reactive({
@@ -94,6 +111,7 @@ const state = reactive({
         first: '',
         last: ''
     },
+    photoURL: '',
     position: '',
     number: undefined,
     DoB: {
@@ -109,21 +127,55 @@ const collectionRef = collection(fireStore, 'players')
 const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const States = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara']
 const addPlayer = async () => {
+    isLoading.value = true
     try {
-        isLoading.value = true
-        const docRef = await addDoc(collectionRef, state)
-        console.log(docRef)
-        isLoading.value = false
-        state.DoB.day = '1'
-        state.DoB.month = 'October'
-        state.DoB.year = '1960'
-        state.name.first = ''
-        state.name.last = ''
-        state.gender = ''
-        state.number = undefined
-        state.position = ''
-        state.stateOfOrigin = ''
+        const data = {
+            name: {
+                first: state.name.first,
+                last: state.name.last
+            },
+            photoURL: '',
+            position: state.position,
+            number: state.number,
+            DoB: {
+                day: state.DoB.day,
+                month: state.DoB.month,
+                year: state.DoB.year
+            },
+            stateOfOrigin: state.stateOfOrigin,
+            gender: state.gender
+        }
+        const fileName = `${state.name.first}_${state.name.last}.png`
+        if (inputFile.value?.files !== null) {
+            const clubRef = storageRef(storage, `players/${fileName}`)
+
+            await uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
+                getDownloadURL(snapshot.ref).then((url) => {
+                    data.photoURL = url
+                }).then(() => {
+                    addDoc(collectionRef, data)
+
+                })
+            }).then(() => {
+                inputFile.value!.files = null
+                hidePreview.value = true
+                imagePreview.value!.src = ''
+                state.DoB.day = '1'
+                state.DoB.month = 'October'
+                state.DoB.year = '1960'
+                state.name.first = ''
+                state.name.last = ''
+                state.gender = ''
+                state.number = undefined
+                state.position = ''
+                state.stateOfOrigin = ''
+                state.photoURL = ''
+                isLoading.value = false
+            })
+
+        }
     } catch (e) {
+
         isLoading.value = false
         console.log(e)
     }
@@ -166,6 +218,14 @@ const filteredRows = computed(() => {
     })
 })
 const isRefreshing = ref(false)
+const imagePreview = ref<HTMLImageElement | null>()
+const hidePreview = ref(true)
+const previewFile: (payload: Event) => void = (payload) => {
+
+    imagePreview.value!.src = URL.createObjectURL(payload.target?.files[0])
+    hidePreview.value = false
+
+}
 const refreshTable = async () => {
     try {
         players.value = []
