@@ -14,6 +14,8 @@
                 <RouterLink to="/admin" class="font-bold capitalize">dashboard </RouterLink>
                 <RouterLink to="/admin/players" class="font-bold capitalize">players</RouterLink>
                 <RouterLink to="/admin/news" class="font-bold capitalize">News</RouterLink>
+                <RouterLink to="/admin/club" class="font-bold capitalize">Clubs
+                </RouterLink>
             </nav>
 
         </section>
