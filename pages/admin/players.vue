@@ -37,7 +37,7 @@
                         <img ref="imagePreview" class="w-full h-full" />
                     </div>
 
-                    <UFormGroup label="Club logo " class="mb-4">
+                    <UFormGroup label="Player Image " class="mb-4">
 
                         <label for="club"
                             class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
