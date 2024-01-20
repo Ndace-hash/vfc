@@ -7,4 +7,5 @@ export interface Player {
 	postion: string;
 	number: number;
 	gender: string;
+	photoURL: string;
 }
