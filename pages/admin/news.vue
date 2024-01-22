@@ -18,7 +18,9 @@
                     <UInput placeholder="filter news..." />
                 </div>
             </div>
+            <TipTap />
         </div>
+
     </section>
 </template>
 
