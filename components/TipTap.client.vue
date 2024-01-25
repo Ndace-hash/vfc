@@ -56,8 +56,14 @@
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import TiptapStarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link';
+const props = defineProps({
+    modelValue: {
+        type: String,
+        default: 'WHat is happening?'
+    }
+})
+const emits = defineEmits(['update:modelValue'])
 const editor = useEditor({
-    content: "<p>I'm running Tiptap with Vue.js. 🎉</p>",
     extensions: [TiptapStarterKit.configure({
         heading: {
             HTMLAttributes: {
@@ -76,8 +82,14 @@ const editor = useEditor({
         }
     }), Link,],
     autofocus: true,
+    onUpdate() {
+        emits('update:modelValue', editor.value.getHTML())
+    }
 
 });
+onMounted(() => {
+    editor.value.commands.setContent(props.modelValue)
+})
 </script>
 
 <style lang="scss">
