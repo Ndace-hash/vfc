@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="w-full">
         <div v-if="editor" class="flex flex-wrap gap-2 mb-4">
             <UButton @click="editor.chain().focus().toggleBold().run()"
                 :disabled="!editor.can().chain().focus().toggleBold().run()" class=" border border-primary" size="xs"
