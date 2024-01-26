@@ -19,10 +19,6 @@
                 size="xs" :variant="editor.isActive('heading', { level: 2 }) ? 'solid' : 'ghost'">
                 H2
             </UButton>
-            <UButton @click="editor.chain().focus().toggleHeading({ level: 1 }).run()"
-                :class="{ 'is-active': editor.isActive('heading', { level: 1 }) }">
-                <UIcon name="i-material-symbols-add-link" dynamic class="text-2xl" />
-            </UButton>
             <UButton @click="editor.chain().focus().toggleBulletList().run()" class=" border border-primary" size="xs"
                 :variant="editor.isActive('bulletList') ? 'solid' : 'ghost'">
                 <UIcon name="i-material-symbols-format-list-bulleted" dynamic class="text-2xl" />
@@ -36,6 +32,13 @@
 
                 <UIcon name="i-tabler-blockquote" dynamic class="text-2xl" />
             </UButton>
+            <UButton @click="createLink" :class="{ 'is-active': editor.isActive('link') }">
+                <UIcon name="i-material-symbols-add-link" dynamic class="text-2xl" />
+            </UButton>
+            <label @change="addImage" :class="{ 'is-active': editor.isActive('link') }" class="rounded-md p-2" for="image">
+                <UIcon name="i-material-symbols-add-photo-alternate-outline" dynamic class="text-2xl" />
+                <input type="file" accept=".jpg, .png, .jpeg, .gif" class="hidden" id="image" ref="imageInput" />
+            </label>
             <UButton @click="editor.chain().focus().setHorizontalRule().run()">
                 <UIcon name="i-carbon-ruler" dynamic class="text-2xl" />
             </UButton>
@@ -52,10 +55,14 @@
     </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
+import { uploadBytes, ref as storageRef, getDownloadURL } from 'firebase/storage'
+import { storage } from '~/config/firebase';
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import TiptapStarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link';
+import Image from '@tiptap/extension-image';
+const imageInput = ref<HTMLInputElement | null>(null)
 const props = defineProps({
     modelValue: {
         type: String,
@@ -80,16 +87,53 @@ const editor = useEditor({
                 class: 'list-item'
             }
         }
-    }), Link,],
+    }), Link.configure({
+        linkOnPaste: true,
+        openOnClick: true,
+        HTMLAttributes: {
+            class: 'link'
+        }
+    }), Image],
     autofocus: true,
     onUpdate() {
-        emits('update:modelValue', editor.value.getHTML())
+        emits('update:modelValue', editor.value?.getHTML())
     }
 
 });
 onMounted(() => {
-    editor.value.commands.setContent(props.modelValue)
+    editor.value?.commands.setContent(props.modelValue)
 })
+
+const createLink = () => {
+    // const regex = new RegExp('/https?:\/\/([A-Z]*.)*\/+\-[A-Z]*/gi')
+    const regex = new RegExp("https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)")
+    const url = String(prompt('URL'))
+    // if (url != null && regex.test(url)) {
+    editor.value?.chain().focus().setLink({ href: url }).run()
+    // } else {
+    // alert('Please input a valid url: https://*')
+    // }
+}
+
+const addImage = () => {
+    try {
+
+        if (imageInput.value?.files) {
+            const file = imageInput.value?.files[0]
+            const fileName = file.name.replaceAll(' ', '_')
+            uploadBytes(storageRef(storage, `newsAssets/${fileName}`), file).then(snapshot => {
+                getDownloadURL(snapshot.ref).then(url => {
+                    editor.value?.chain().focus().setImage({ src: url }).run()
+                    editor.value?.commands.createParagraphNear()
+                })
+            })
+
+        }
+    } catch (e) {
+        console.error(e)
+    }
+
+}
 </script>
 
 <style lang="scss">
@@ -97,6 +141,8 @@ onMounted(() => {
     .tiptap.ProseMirror-focused {
         border: 1px solid transparent;
         outline: none;
+
+        @apply pb-3;
 
         &>p {
             @apply mb-3;
@@ -138,5 +184,9 @@ blockquote {
 
 .is-active {
     @apply text-white bg-primary;
+}
+
+a {
+    @apply text-primary underline;
 }
 </style>
