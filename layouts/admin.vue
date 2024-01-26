@@ -1,6 +1,6 @@
 <template>
     <main class="flex">
-        <section class="bg-admin-dark min-h-screen w-1/5 flex flex-col items-center gap-12 sidebar">
+        <section class="bg-admin-dark min-h-screen w-[300px] flex flex-col items-center gap-12 sidebar fixed top-0 left-0">
             <div class="flex items-center justify-center w-[150px]">
                 <img src="/valiant.png" alt="Valiant FC Logo" class="h-full w-full">
             </div>
@@ -19,7 +19,7 @@
             </nav>
 
         </section>
-        <section class="bg-admin-light w-full">
+        <section class="bg-admin-light min-h-screen w-full overflow-y-auto ms-[300px]">
 
             <slot />
         </section>
