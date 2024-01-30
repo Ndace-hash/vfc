@@ -35,7 +35,8 @@
             <UButton @click="createLink" :class="{ 'is-active': editor.isActive('link') }">
                 <UIcon name="i-material-symbols-add-link" dynamic class="text-2xl" />
             </UButton>
-            <label @change="addImage" :class="{ 'is-active': editor.isActive('link') }" class="rounded-md p-2" for="image">
+            <label @change="addImage" :class="{ 'is-active': editor.isActive('image') }"
+                class="rounded-md p-2 border border-primary bg-primary text-white " for="image">
                 <UIcon name="i-material-symbols-add-photo-alternate-outline" dynamic class="text-2xl" />
                 <input type="file" accept=".jpg, .png, .jpeg, .gif" class="hidden" id="image" ref="imageInput" />
             </label>
@@ -148,45 +149,45 @@ const addImage = () => {
             @apply mb-3;
         }
     }
-}
 
-ul {
-    @apply list-disc;
-}
-
-h1.heading {
-    @apply text-3xl font-bold
-}
-
-h2.heading {
-    @apply text-xl font-semibold;
-}
-
-ul {
-    @apply mb-4;
-
-    &.list-item li {
-        @apply list-disc ms-6;
+    ul {
+        @apply list-disc;
     }
-}
 
-ol {
-    @apply mb-4;
-
-    &.list-item li {
-        @apply list-decimal ms-6;
+    h1.heading {
+        @apply text-3xl font-bold
     }
-}
 
-blockquote {
-    @apply ms-4 border-l-2 border-l-primary py-1 px-2;
-}
+    h2.heading {
+        @apply text-xl font-semibold;
+    }
 
-.is-active {
-    @apply text-white bg-primary;
-}
+    ul {
+        @apply mb-4;
 
-a {
-    @apply text-primary underline;
+        &.list-item li {
+            @apply list-disc ms-6;
+        }
+    }
+
+    ol {
+        @apply mb-4;
+
+        &.list-item li {
+            @apply list-decimal ms-6;
+        }
+    }
+
+    blockquote {
+        @apply ms-4 border-l-2 border-l-primary py-1 px-2;
+    }
+
+    .is-active {
+        @apply text-white bg-primary;
+    }
+
+    a {
+        @apply text-primary underline;
+    }
 }
 </style>
