@@ -24,4 +24,5 @@ export default defineNuxtConfig({
 	tailwindcss: {
 		configPath: "./tailwind.config.js",
 	},
+	css: ["v-calendar/style.css"],
 });
