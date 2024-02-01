@@ -21,6 +21,7 @@
                         </UButton>
                     </div>
                 </div>
+                <AdminFixtureCard v-for="fixture in fixtures" :key="fixture.id" :fixture="fixture" />
             </div>
 
         </div>
@@ -85,6 +86,7 @@ const state = reactive({
     season: ''
 })
 const clubs = ref<any>([])
+const fixtures = ref<any>([])
 const options = [{
     label: 'Home',
     value: 'home'
@@ -130,6 +132,13 @@ onBeforeMount(() => {
         snapshot.docs.forEach(doc => {
             const data = doc.data()
             clubs.value.push({ id: doc.id, name: data.name, logo: data.logo })
+        })
+    })
+
+    getDocs(collection(fireStore, 'fixtures')).then((snapshot) => {
+        snapshot.docs.forEach((doc) => {
+            const data = doc.data()
+            fixtures.value.push({ id: doc.id, ...data })
         })
     })
 })
