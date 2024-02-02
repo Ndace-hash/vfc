@@ -83,7 +83,7 @@
                                 <img :src="fixtureToEdit.away.logo" :alt="fixtureToEdit.away.name" class="w-full h-full">
                             </div>
                         </div>
-                        <UForm :state="fixtureToEdit" @click="updateFixture">
+                        <UForm :state="fixtureToEdit" @submit="updateFixture(fixtureToEdit.id)">
                             <UCheckbox label="Match Played" class="mb-4" v-model="fixtureToEdit.played" />
                             <UFormGroup label="Scores" class="mb-6 flex flex-col items-center">
                                 <div class="flex items-center gap-4">
@@ -108,7 +108,7 @@
 
 <script setup lang="ts">
 import { fireStore } from '~/config/firebase'
-import { collection, getDocs, addDoc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore'
 import { DatePicker } from 'v-calendar'
 definePageMeta({
     layout: 'admin'
@@ -190,9 +190,18 @@ const openEditModal = (id) => {
         date: f.date.toDate()
     })).find((fixture: any) => fixture.id === id)
 }
-
-const updateFixture = () => {
-    console.log(fixtureToEdit.value)
+const isLoading = ref(false)
+const updateFixture = (id: string) => {
+    isLoading.value = true;
+    try {
+        setDoc(doc(fireStore, 'fixtures', id), fixtureToEdit.value).then((snapshot) => {
+            console.log(snapshot)
+        })
+        isLoading.value = false
+    } catch (e) {
+        isLoading.value = false
+        console.error(e)
+    }
 }
 </script>
 
