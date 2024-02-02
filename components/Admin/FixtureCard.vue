@@ -26,14 +26,25 @@
                 </div>
             </div>
         </div>
-        <UButton variant="outline" size="xs" class="absolute top-4 right-4" @click="$emit('editFixture', fixture.id)">
-            <template #leading>
-                <UIcon name="i-material-symbols-edit" dynamic class="text-lg" />
-            </template>
-            <template #default>
-                <span class="text-primary text-lg">Edit</span>
-            </template>
-        </UButton>
+        <div class="absolute top-4 right-4 flex gap-2">
+
+            <UButton variant="outline" size="xs" @click="$emit('editFixture', fixture.id)">
+                <template #leading>
+                    <UIcon name="i-material-symbols-edit" dynamic class="text-lg" />
+                </template>
+                <template #default>
+                    <span class="text-primary text-sm">Edit</span>
+                </template>
+            </UButton>
+            <UButton variant="solid" color="red" size="xs" @click="deleteFixture(fixture.id)">
+                <template #leading>
+                    <UIcon name="i-ph-trash" dynamic class="text-lg" />
+                </template>
+                <template #default>
+                    <span class="text-white text-sm">Delete</span>
+                </template>
+            </UButton>
+        </div>
     </UCard>
 </template>
 
@@ -53,6 +64,7 @@ const dayMasks = {
 }
 
 const openEditModal = ref(false)
+const deleteFixture = (id) => { }
 </script>
 
 <style scoped></style>
