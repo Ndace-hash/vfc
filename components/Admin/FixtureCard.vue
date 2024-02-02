@@ -49,10 +49,12 @@
 </template>
 
 <script setup lang="ts">
+import { doc, deleteDoc } from 'firebase/firestore'
+import { fireStore } from '~/config/firebase'
 const props = defineProps(['fixture'])
 const emits = defineEmits(['editFixture'])
 const dateFormat = props.fixture.date.toDate()
-const date = ref(dateFormat.toString().split(' '))
+const date = ref<string[]>(dateFormat.toString().split(' '))
 const dayMasks = {
     'Sun': 'Sunday',
     'Mon': 'Monday',
@@ -64,7 +66,18 @@ const dayMasks = {
 }
 
 const openEditModal = ref(false)
-const deleteFixture = (id) => { }
+const deleteFixture = (id: string) => {
+    const deleteConfirmed = confirm(`Are sure you want to delete ${props.fixture.home.name} vs ${props.fixture.away.name}?`)
+    if (deleteConfirmed) {
+
+        try {
+
+            deleteDoc(doc(fireStore, 'fixtures', id))
+        } catch (e) {
+            console.error(e)
+        }
+    }
+}
 </script>
 
 <style scoped></style>
