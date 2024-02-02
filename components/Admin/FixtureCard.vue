@@ -1,5 +1,5 @@
 <template>
-    <UCard>
+    <UCard class="relative">
         <h5 class="text-primary font-semibold text-lg text-center">{{ `${dayMasks[date[0]]} ${date[1]} ${date[2]},
                     ${date[3]}.` }}</h5>
         <div class="flex justify-center items-center gap-5">
@@ -26,11 +26,20 @@
                 </div>
             </div>
         </div>
+        <UButton variant="outline" size="xs" class="absolute top-4 right-4" @click="$emit('editFixture', fixture.id)">
+            <template #leading>
+                <UIcon name="i-material-symbols-edit" dynamic class="text-lg" />
+            </template>
+            <template #default>
+                <span class="text-primary text-lg">Edit</span>
+            </template>
+        </UButton>
     </UCard>
 </template>
 
 <script setup lang="ts">
 const props = defineProps(['fixture'])
+const emits = defineEmits(['editFixture'])
 const dateFormat = props.fixture.date.toDate()
 const date = ref(dateFormat.toString().split(' '))
 const dayMasks = {
@@ -42,6 +51,8 @@ const dayMasks = {
     'Fri': 'Friday',
     'Sat': 'Saturday'
 }
+
+const openEditModal = ref(false)
 </script>
 
 <style scoped></style>

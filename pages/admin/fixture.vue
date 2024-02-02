@@ -21,7 +21,8 @@
                         </UButton>
                     </div>
                 </div>
-                <AdminFixtureCard v-for="fixture in fixtures" :key="fixture.id" :fixture="fixture" />
+                <AdminFixtureCard v-for="fixture in fixtures" :key="fixture.id" :fixture="fixture"
+                    @edit-fixture="openEditModal" />
             </div>
 
         </div>
@@ -63,6 +64,42 @@
                             <UButton label="Add" type="submit" class="px-8" size="lg" />
                         </UFormGroup>
                     </UForm>
+                </template>
+            </UCard>
+        </UModal>
+        <UModal v-model="editModalIsOpen">
+            <UCard>
+                <template #header>
+                    <h1 class="text-primary text-2xl font-bold">Fixtures</h1>
+                </template>
+                <template #default>
+                    <div class="flex flex-col items-center">
+                        <div class="flex items-center gap-3">
+                            <div class="w-[100px]">
+                                <img :src="fixtureToEdit.home.logo" :alt="fixtureToEdit.home.name" class="w-full h-full">
+                            </div>
+                            <span class="font-bold text-lg">VS</span>
+                            <div class="w-[100px]">
+                                <img :src="fixtureToEdit.away.logo" :alt="fixtureToEdit.away.name" class="w-full h-full">
+                            </div>
+                        </div>
+                        <UForm :state="fixtureToEdit" @click="updateFixture">
+                            <UCheckbox label="Match Played" class="mb-4" v-model="fixtureToEdit.played" />
+                            <UFormGroup label="Scores" class="mb-6 flex flex-col items-center">
+                                <div class="flex items-center gap-4">
+                                    <UInput v-model="fixtureToEdit.goals.home" class="w-10 font-bold text-2xl" size="sm" />
+                                    <span class="text-xl font-bold">--</span>
+                                    <UInput v-model="fixtureToEdit.goals.away" class="w-10 font-bold text-2xl" size="sm" />
+                                </div>
+                            </UFormGroup>
+                            <UFormGroup label="Match day" class="mb-4">
+                                <DatePicker v-model="fixtureToEdit.date" mode="dateTime" />
+                            </UFormGroup>
+                            <UFormGroup class="flex justify-end">
+                                <UButton label="Update" type="submit" class="px-8" size="lg" />
+                            </UFormGroup>
+                        </UForm>
+                    </div>
                 </template>
             </UCard>
         </UModal>
@@ -127,6 +164,9 @@ const addFixture = () => {
     }
 }
 
+const editModalIsOpen = ref(false)
+const fixtureToEdit = ref()
+
 onBeforeMount(() => {
     getDocs(collection(fireStore, 'clubs')).then((snapshot) => {
         snapshot.docs.forEach(doc => {
@@ -142,6 +182,18 @@ onBeforeMount(() => {
         })
     })
 })
+
+const openEditModal = (id) => {
+    editModalIsOpen.value = true
+    fixtureToEdit.value = fixtures.value.map((f: any) => ({
+        ...f,
+        date: f.date.toDate()
+    })).find((fixture: any) => fixture.id === id)
+}
+
+const updateFixture = () => {
+    console.log(fixtureToEdit.value)
+}
 </script>
 
 <style scoped></style>
