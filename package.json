@@ -33,6 +33,7 @@
     "firebase": "^10.7.1",
     "nuxt-vuefire": "^1.0.1",
     "v-calendar": "^3.1.2",
-    "vuefire": "^3.1.22"
+    "vuefire": "^3.1.22",
+    "zod": "^3.22.4"
   }
 }
