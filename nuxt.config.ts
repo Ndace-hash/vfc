@@ -1,6 +1,12 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
-	devtools: { enabled: true },
+	devtools: {
+		enabled: true,
+
+		timeline: {
+			enabled: true,
+		},
+	},
 
 	app: {
 		head: {
@@ -20,9 +26,21 @@ export default defineNuxtConfig({
 			title: "Valiant FC",
 		},
 	},
-	modules: ["@nuxt/content", "nuxt-swiper", "@nuxt/ui"],
+	modules: ["@nuxt/content", "nuxt-swiper", "@nuxt/ui", "@pinia/nuxt"],
 	tailwindcss: {
 		configPath: "./tailwind.config.js",
 	},
 	css: ["v-calendar/style.css"],
+	runtimeConfig: {
+		apiKey: "",
+		authDomain: "",
+		projectId: "",
+		storageBucket: "",
+		messagingSenderId: "",
+		appId: "",
+	},
+	imports: {
+		dirs: ["./stores/**"],
+	},
+	ssr: false,
 });
