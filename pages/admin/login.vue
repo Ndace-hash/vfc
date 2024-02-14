@@ -23,13 +23,12 @@
 </template>
 
 <script setup lang="ts">
-import { signInWithEmailAndPassword, type User } from 'firebase/auth'
-import { auth } from '~/config/firebase'
 import { z } from 'zod'
 definePageMeta({
     layout: false
 })
-const user = useState<null | User>('user', () => null)
+const userStore = useUserStore()
+
 const state = reactive({
     email: '',
     password: ''
@@ -40,20 +39,9 @@ const schema = z.object({
     password: z.string().min(8, 'Must be at least 8 characters.')
 })
 
-const login = () => {
-    try {
-        signInWithEmailAndPassword(auth, state.email, state.password).then(userCredential => {
-            user.value = userCredential.user
-            console.log(userCredential)
-        })
-
-        if (user.value != null) {
-            navigateTo('/admin')
-        }
-
-    } catch (e) {
-        console.error(e)
-    }
+const login = async () => {
+    await userStore.setUser(state)
+    if (userStore.currentUser) return navigateTo({ path: '/admin' })
 }
 </script>
 
