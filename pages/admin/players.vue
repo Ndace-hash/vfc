@@ -71,12 +71,7 @@
                         </UFormGroup>
                     </div>
                     <UFormGroup label="Date Of Birth" class="mb-3">
-
-                        <div class="flex gap-2">
-                            <UInput v-model="state.DoB.day" class="w-12 text-center" />
-                            <USelect v-model="state.DoB.month" :options="Months" class="w-1/4" />
-                            <UInput v-model="state.DoB.year" class="w-1/4" />
-                        </div>
+                        <DatePicker v-model="state.DoB" mode="date" />
                     </UFormGroup>
                     <UFormGroup label="State of Origin">
                         <UInputMenu v-model="state.stateOfOrigin" :options="States" />
@@ -91,10 +86,12 @@
 </template>
 
 <script setup lang="ts">
+import { DatePicker } from 'v-calendar'
 import { fireStore, storage } from '~/config/firebase'
 import { getDocs, addDoc, collection } from 'firebase/firestore'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import type { Player } from '~/types/Player';
+import { z } from 'zod'
 definePageMeta({
     layout: 'admin'
 })
@@ -114,11 +111,7 @@ const state = reactive({
     photoURL: '',
     position: '',
     number: undefined,
-    DoB: {
-        day: '1',
-        month: 'October',
-        year: '1960'
-    },
+    DoB: new Date(),
     stateOfOrigin: '',
     gender: ''
 
@@ -137,11 +130,7 @@ const addPlayer = async () => {
             photoURL: '',
             position: state.position,
             number: state.number,
-            DoB: {
-                day: state.DoB.day,
-                month: state.DoB.month,
-                year: state.DoB.year
-            },
+            DoB: state.DoB.toString(),
             stateOfOrigin: state.stateOfOrigin,
             gender: state.gender
         }
@@ -160,9 +149,7 @@ const addPlayer = async () => {
                 inputFile.value!.files = null
                 hidePreview.value = true
                 imagePreview.value!.src = ''
-                state.DoB.day = '1'
-                state.DoB.month = 'October'
-                state.DoB.year = '1960'
+                state.DoB = new Date()
                 state.name.first = ''
                 state.name.last = ''
                 state.gender = ''
