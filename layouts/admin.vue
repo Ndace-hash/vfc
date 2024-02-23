@@ -7,8 +7,7 @@
             <nav class="flex flex-col gap-6 text-white">
                 <RouterLink to="/admin" class="flex items-center justify-start gap-3 ">
                     <IconUser class="" color="#ffffff" width="50px" />
-                    <span class="text-white font-bold flex items-center gap-10">Zaccheaus Yisa
-                        <IconChevron color="white" width="20px" class="translate-y-[2px]" />
+                    <span class="text-white font-bold flex items-center gap-10">{{ userStore.currentUser.displayName }}
                     </span>
                 </RouterLink>
                 <RouterLink to="/admin" class="font-bold capitalize">dashboard </RouterLink>
@@ -90,6 +89,7 @@ const state = reactive({
     password: generateRandomPassword()
 })
 
+const userStore = useUserStore()
 const createUser = async () => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, state.email, state.password)
@@ -107,10 +107,15 @@ const createUser = async () => {
             })
         }
         )
+        await $fetch('/api/create-admin', {
+            method: 'POST',
+            body: { email: state.email }
+        })
 
     } catch (e) {
         console.log(e)
     }
+
 }
 
 </script>
