@@ -22,7 +22,7 @@
                 </div>
             </div>
             <div class="h-[500px] overflow-y-scroll">
-                <UTable v-model="selected" :rows="filteredRows"
+                <UTable v-model="selected" :rows="filteredRows" :columns="columns"
                     :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No players.' }" />
             </div>
         </div>
@@ -116,6 +116,27 @@ const state = reactive({
     gender: ''
 
 })
+
+const columns = [{
+    key: 'first_name',
+    label: 'First Name'
+}, {
+    key: 'last_name',
+    label: 'Last Name'
+},
+{
+    key: 'position',
+    label: 'Position'
+}, {
+    key: 'number',
+    label: 'Jersey'
+},
+{
+    key: 'gender',
+    label: 'Gender'
+},
+{ key: 'actions' }]
+
 const collectionRef = collection(fireStore, 'players')
 const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const States = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara']
@@ -179,7 +200,7 @@ onBeforeMount(async () => {
                 first_name: String(data.name.first),
                 last_name: String(data.name.last),
                 gender: String(data.gender),
-                postion: String(data.position),
+                position: String(data.position),
                 number: Number(data.number),
                 state_of_origin: String(data.stateOfOrigin),
                 date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`
