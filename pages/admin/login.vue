@@ -23,7 +23,9 @@
 </template>
 
 <script setup lang="ts">
+import { auth } from '~/config/firebase'
 import { z } from 'zod'
+import type { IdTokenResult } from 'firebase/auth';
 definePageMeta({
     layout: false
 })
@@ -40,8 +42,16 @@ const schema = z.object({
 })
 
 const login = async () => {
-    await userStore.setUser(state)
-    if (userStore.currentUser) return navigateTo({ path: '/admin' })
+    try {
+        await userStore.setUser(state)
+        auth.currentUser?.getIdTokenResult().then((idTokenResult: IdTokenResult) => {
+            userStore.isAdmin = idTokenResult.claims.admin as boolean
+            if (userStore.currentUser && userStore.isAdmin) navigateTo({ path: '/admin' })
+        })
+
+    } catch (error) {
+        console.log(error)
+    }
 }
 </script>
 
