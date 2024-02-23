@@ -4,7 +4,7 @@ export interface Player {
 	last_name: string;
 	date_of_birth: string;
 	state_of_origin: string;
-	postion: string;
+	position: string;
 	number: number;
 	gender: string;
 	photoURL: string;
