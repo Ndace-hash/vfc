@@ -1,5 +1,5 @@
 <template>
-    <article class="flex my-4 drop-shadow-[4px,4px,9px,0px] overflow-hidden">
+    <article class="flex my-4 drop-shadow-[4px,4px,9px,0px] overflow-hidden" @click="viewNews(article.id)">
         <div class="w-1/2 md:w-1/4">
             <img src="~/assets/images/news-card.jpg" alt="" class="w-full h-full">
         </div>
@@ -16,10 +16,17 @@
 import * as cheerio from 'cheerio'
 import type { Article } from '~/types/News'
 const props = defineProps<{ article: Article }>()
+const router = useRouter()
 const trimedHTML = () => {
     const $ = cheerio.load(props.article.content)
     return $('p:first').text()
 
+}
+
+const viewNews = (id: string) => {
+    router.push({
+        path: `/news/${id}`
+    })
 }
 </script>
 
