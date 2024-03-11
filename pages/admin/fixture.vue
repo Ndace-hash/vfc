@@ -33,16 +33,16 @@
                     <h1 class="text-primary text-2xl font-bold">Fixtures</h1>
                 </template>
                 <template #default>
-                    <UForm :state="state" @submit="addFixture">
-                        <UFormGroup label="Venue" class="mb-4">
+                    <UForm :state="state" @submit="addFixture" :schema="schema">
+                        <UFormGroup label="Venue" class="mb-4" name="venue">
                             <div class="flex gap-6 my-2">
                                 <URadio v-for="option in options" :key="option.value" v-model="state.venue"
                                     v-bind="option" />
 
                             </div>
                         </UFormGroup>
-                        <UFormGroup label="Oponent" class="mb-4">
-                            <UInputMenu :options="clubs" by="name" option-attribute="name" v-model="state.oponent">
+                        <UFormGroup label="Oponent" class="mb-4" name="opponent">
+                            <UInputMenu :options="clubs" by="name" option-attribute="name" v-model="state.opponent">
                                 <template #option="{ option: club }">
                                     <div class="flex items-center gap-4">
                                         <div class="w-16">
@@ -54,10 +54,10 @@
                                 </template>
                             </UInputMenu>
                         </UFormGroup>
-                        <UFormGroup label="Season" class="mb-4">
+                        <UFormGroup label="Season" class="mb-4" name="season">
                             <UInput placeholder="Ex. 2023/2024" v-model="state.season" />
                         </UFormGroup>
-                        <UFormGroup label="Match Day" class="mb-4 flex items-center flex-col">
+                        <UFormGroup label="Match Day" class="mb-4 flex items-center flex-col" name="date">
                             <DatePicker mode="dateTime" v-model="state.date" />
                         </UFormGroup>
                         <UFormGroup class="flex justify-end">
@@ -76,20 +76,24 @@
                     <div class="flex flex-col items-center">
                         <div class="flex items-center gap-3">
                             <div class="w-[100px]">
-                                <img :src="fixtureToEdit.home.logo" :alt="fixtureToEdit.home.name" class="w-full h-full">
+                                <img :src="fixtureToEdit.home.logo" :alt="fixtureToEdit.home.name"
+                                    class="w-full h-full">
                             </div>
                             <span class="font-bold text-lg">VS</span>
                             <div class="w-[100px]">
-                                <img :src="fixtureToEdit.away.logo" :alt="fixtureToEdit.away.name" class="w-full h-full">
+                                <img :src="fixtureToEdit.away.logo" :alt="fixtureToEdit.away.name"
+                                    class="w-full h-full">
                             </div>
                         </div>
                         <UForm :state="fixtureToEdit" @submit="updateFixture(fixtureToEdit.id)">
                             <UCheckbox label="Match Played" class="mb-4" v-model="fixtureToEdit.played" />
                             <UFormGroup label="Scores" class="mb-6 flex flex-col items-center">
                                 <div class="flex items-center gap-4">
-                                    <UInput v-model="fixtureToEdit.goals.home" class="w-10 font-bold text-2xl" size="sm" />
+                                    <UInput v-model="fixtureToEdit.goals.home" class="w-10 font-bold text-2xl"
+                                        size="sm" />
                                     <span class="text-xl font-bold">--</span>
-                                    <UInput v-model="fixtureToEdit.goals.away" class="w-10 font-bold text-2xl" size="sm" />
+                                    <UInput v-model="fixtureToEdit.goals.away" class="w-10 font-bold text-2xl"
+                                        size="sm" />
                                 </div>
                             </UFormGroup>
                             <UFormGroup label="Match day" class="mb-4">
@@ -110,6 +114,7 @@
 import { fireStore } from '~/config/firebase'
 import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore'
 import { DatePicker } from 'v-calendar'
+import { z } from 'zod'
 definePageMeta({
     layout: 'admin'
 })
@@ -119,8 +124,13 @@ const isRefreshing = ref(false)
 const state = reactive({
     venue: '',
     date: new Date(),
-    oponent: { id: '', logo: '', name: '' },
+    opponent: { id: '', logo: '', name: '' },
     season: ''
+})
+const schema = z.object({
+    venue: z.string(),
+    date: z.string()
+
 })
 const clubs = ref<any>([])
 const fixtures = ref<any>([])

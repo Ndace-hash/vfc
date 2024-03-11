@@ -3,7 +3,8 @@
         <h1 class="text-white capitalize text-2xl max-w-[1024px] mx-auto my-6">Team <span
                 class="font-semibold">Management</span></h1>
 
-        <div class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-hidden">
+        <div
+            class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-hidden">
             <div class="flex items-center py-4 px-4 justify-between border-b border-admin-light">
                 <button
                     class="flex bg-primary text-white border-2 border-primary items-center justify-center gap-1 font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
@@ -15,7 +16,8 @@
                     <UButton
                         class="bg-transparent text-admin-dark flex items-center border-2 border-primary hover:text-white"
                         @click="refreshTable" :disabled="isRefreshing">
-                        <IconRefresh width="15px" :class="isRefreshing ? 'duration-1000 ease-linear animate-spin' : ''" />
+                        <IconRefresh width="15px"
+                            :class="isRefreshing ? 'duration-1000 ease-linear animate-spin' : ''" />
                         Refresh
                     </UButton>
                     <UInput v-model="q" placeholder="filter players..." />
@@ -32,7 +34,7 @@
                     <h2 class="text-primary font-bold text-xl mb-2">Add a new player</h2>
                     <p class="text-sm text-admin-dark">Fill out the form to add a new player</p>
                 </template>
-                <UForm :state="state" @submit="addPlayer">
+                <UForm :state="state" @submit="addPlayer" :schema="schema">
                     <div class="w-[150px] mb-4" v-show="!hidePreview">
                         <img ref="imagePreview" class="w-full h-full" />
                     </div>
@@ -50,30 +52,30 @@
 
                     <div class="flex items-center gap-4 mb-3">
 
-                        <UFormGroup label="First Name" class="w-1/2">
+                        <UFormGroup label="First Name" class="w-1/2" name="firstName">
                             <UInput v-model="state.name.first" />
                         </UFormGroup>
-                        <UFormGroup label="Last Name" class="w-1/2">
+                        <UFormGroup label="Last Name" class="w-1/2" name="lastName">
                             <UInput v-model="state.name.last" />
                         </UFormGroup>
                     </div>
                     <div class="flex items-center gap-4 mb-3">
 
-                        <UFormGroup label="Position">
+                        <UFormGroup label="Position" name="position">
                             <USelect v-model="state.position"
                                 :options="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
                         </UFormGroup>
-                        <UFormGroup label="Jersey Number">
+                        <UFormGroup label="Jersey Number" name="number">
                             <UInput v-model="state.number" />
                         </UFormGroup>
-                        <UFormGroup label="Gender">
+                        <UFormGroup label="Gender" name="gender">
                             <USelect v-model="state.gender" :options="['Male', 'Female']" />
                         </UFormGroup>
                     </div>
-                    <UFormGroup label="Date Of Birth" class="mb-3">
+                    <UFormGroup label="Date Of Birth" class="mb-3" name="DoB">
                         <DatePicker v-model="state.DoB" mode="date" />
                     </UFormGroup>
-                    <UFormGroup label="State of Origin">
+                    <UFormGroup label="State of Origin" name="state">
                         <UInputMenu v-model="state.stateOfOrigin" :options="States" />
                     </UFormGroup>
 
@@ -117,6 +119,16 @@ const state = reactive({
 
 })
 
+const schema = z.object({
+    firstName: z.string(),
+    lastName: z.string(),
+    position: z.string(),
+    number: z.number(),
+    state: z.string(),
+    DoB: z.string(),
+    gender: z.string()
+
+})
 const columns = [{
     key: 'first_name',
     label: 'First Name'
@@ -138,7 +150,7 @@ const columns = [{
 { key: 'actions' }]
 
 const collectionRef = collection(fireStore, 'players')
-const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
+// const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const States = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara']
 const addPlayer = async () => {
     isLoading.value = true
@@ -203,7 +215,8 @@ onBeforeMount(async () => {
                 position: String(data.position),
                 number: Number(data.number),
                 state_of_origin: String(data.stateOfOrigin),
-                date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`
+                date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`,
+                photoURL: ''
             }
             )
         })
