@@ -1,9 +1,12 @@
 <script setup lang="ts">
+import { useStorage } from '@vueuse/core'
 import LeagueTable from '~/components/LeagueTable.vue';
 import type { TeamStat } from '~/types/Team';
 const { data } = useFetch<TeamStat[]>('/api/leagueTable')
 
 const route = useRoute()
+const { data: news } = await useFetch('/api/get-news')
+const localNews = useStorage('news', news.value)
 </script>
 
 <template>
@@ -21,21 +24,10 @@ const route = useRoute()
     translate: ['100%', 0, 0],
   },
 }">
-      <SwiperSlide>
-        <CaroselItem />
+      <SwiperSlide v-for="article in news" :key="article.id">
+        <CaroselItem :article="article" />
       </SwiperSlide>
 
-      <SwiperSlide>
-        <CaroselItem />
-      </SwiperSlide>
-
-      <SwiperSlide>
-        <CaroselItem />
-      </SwiperSlide>
-
-      <SwiperSlide>
-        <CaroselItem />
-      </SwiperSlide>
     </Swiper>
 
     <div class="w-full flex items-center justify-center gap-4 mt-4">
@@ -46,13 +38,11 @@ const route = useRoute()
   </section>
   <section class=" max-w-[900px] mx-auto my-6">
     <h2 class="uppercase font-bold">latest updates</h2>
-    <NewsCard />
-    <NewsCard />
+    <NewsCard v-for="article in news" :key="article.id" :article="article" />
   </section>
   <section class=" max-w-[900px] mx-auto my-6">
     <h2 class="uppercase font-bold">latest videos</h2>
-    <NewsCard />
-    <NewsCard />
+    <NewsCard v-for="article in news" :key="article.id" :article="article" />
   </section>
   <section class=" max-w-[900px] mx-auto my-6 flex flex-col items-center">
     <h2 class="uppercase font-bold">Fixtures</h2>
