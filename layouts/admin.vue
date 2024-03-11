@@ -1,6 +1,7 @@
 <template>
     <main class="flex">
-        <section class="bg-admin-dark min-h-screen w-[300px] flex flex-col items-center gap-12 sidebar fixed top-0 left-0">
+        <section
+            class="bg-admin-dark min-h-screen w-[300px] flex flex-col items-center gap-12 sidebar fixed top-0 left-0">
             <div class="flex items-center justify-center w-[150px]">
                 <img src="/valiant.png" alt="Valiant FC Logo" class="h-full w-full">
             </div>
@@ -10,7 +11,6 @@
                     <span class="text-white font-bold flex items-center gap-10">{{ userStore.currentUser.displayName }}
                     </span>
                 </RouterLink>
-                <RouterLink to="/admin" class="font-bold capitalize">dashboard </RouterLink>
                 <RouterLink to="/admin/players" class="font-bold capitalize">players</RouterLink>
                 <RouterLink to="/admin/news" class="font-bold capitalize">News</RouterLink>
                 <RouterLink to="/admin/club" class="font-bold capitalize">Clubs </RouterLink>
