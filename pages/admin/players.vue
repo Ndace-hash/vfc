@@ -34,53 +34,56 @@
                     <h2 class="text-primary font-bold text-xl mb-2">Add a new player</h2>
                     <p class="text-sm text-admin-dark">Fill out the form to add a new player</p>
                 </template>
-                <UForm :state="state" @submit="addPlayer" :schema="schema">
-                    <div class="w-[150px] mb-4" v-show="!hidePreview">
-                        <img ref="imagePreview" class="w-full h-full" />
-                    </div>
+                <template #default>
 
-                    <UFormGroup label="Player Image " class="mb-4">
+                    <UForm :state="state" @submit="addPlayer" :schema="schema">
+                        <div class="w-[150px] mb-4" v-show="!hidePreview">
+                            <img ref="imagePreview" class="w-full h-full" />
+                        </div>
 
-                        <label for="club"
-                            class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
-                            <UIcon name="i-ant-design-upload-outlined" dynamic />
-                            Player Photo
-                        </label>
-                        <input type="file" id="club" ref="inputFile" class="hidden" accept=".jpg, .png, .jpeg"
-                            @change="previewFile" />
-                    </UFormGroup>
+                        <UFormGroup label="Player Image " class="mb-4" required>
 
-                    <div class="flex items-center gap-4 mb-3">
-
-                        <UFormGroup label="First Name" class="w-1/2" name="firstName">
-                            <UInput v-model="state.name.first" />
+                            <label for="club"
+                                class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
+                                <UIcon name="i-ant-design-upload-outlined" dynamic />
+                                Player Photo
+                            </label>
+                            <input type="file" id="club" ref="inputFile" class="opacity-0" accept=".jpg, .png, .jpeg"
+                                @change="previewFile" required />
                         </UFormGroup>
-                        <UFormGroup label="Last Name" class="w-1/2" name="lastName">
-                            <UInput v-model="state.name.last" />
-                        </UFormGroup>
-                    </div>
-                    <div class="flex items-center gap-4 mb-3">
 
-                        <UFormGroup label="Position" name="position">
-                            <USelect v-model="state.position"
-                                :options="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
-                        </UFormGroup>
-                        <UFormGroup label="Jersey Number" name="number">
-                            <UInput v-model="state.number" />
-                        </UFormGroup>
-                        <UFormGroup label="Gender" name="gender">
-                            <USelect v-model="state.gender" :options="['Male', 'Female']" />
-                        </UFormGroup>
-                    </div>
-                    <UFormGroup label="Date Of Birth" class="mb-3" name="DoB">
-                        <DatePicker v-model="state.DoB" mode="date" />
-                    </UFormGroup>
-                    <UFormGroup label="State of Origin" name="state">
-                        <UInputMenu v-model="state.stateOfOrigin" :options="States" />
-                    </UFormGroup>
+                        <div class="flex items-center gap-4 mb-3">
 
-                    <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Add</UButton>
-                </UForm>
+                            <UFormGroup label="First Name" class="w-1/2" name="firstName" required>
+                                <UInput v-model="state.name.first" />
+                            </UFormGroup>
+                            <UFormGroup label="Last Name" class="w-1/2" name="lastName" required>
+                                <UInput v-model="state.name.last" />
+                            </UFormGroup>
+                        </div>
+                        <div class="flex items-center gap-4 mb-3">
+
+                            <UFormGroup label="Position" name="position" required>
+                                <USelect v-model="state.position"
+                                    :options="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
+                            </UFormGroup>
+                            <UFormGroup label="Jersey Number" name="number" required>
+                                <UInput v-model="state.number" />
+                            </UFormGroup>
+                            <UFormGroup label="Gender" name="gender" required>
+                                <USelect v-model="state.gender" :options="['Male', 'Female']" />
+                            </UFormGroup>
+                        </div>
+                        <UFormGroup label="Date Of Birth" class="mb-3" name="DoB" required>
+                            <DatePicker v-model="state.DoB" mode="date" />
+                        </UFormGroup>
+                        <UFormGroup label="State of Origin" name="state" required>
+                            <UInputMenu v-model="state.stateOfOrigin" :options="States" />
+                        </UFormGroup>
+
+                        <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Add</UButton>
+                    </UForm>
+                </template>
             </UCard>
         </UModal>
 
@@ -97,7 +100,6 @@ import { z } from 'zod'
 definePageMeta({
     layout: 'admin'
 })
-const addPlayerForm = ref<HTMLFormElement | null>(null)
 const isLoading = ref(false)
 const isOpen = ref(false)
 const selected = ref([])
@@ -125,7 +127,7 @@ const schema = z.object({
     position: z.string(),
     number: z.number(),
     state: z.string(),
-    DoB: z.string(),
+    DoB: z.date(),
     gender: z.string()
 
 })
@@ -215,7 +217,7 @@ onBeforeMount(async () => {
                 position: String(data.position),
                 number: Number(data.number),
                 state_of_origin: String(data.stateOfOrigin),
-                date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`,
+                date_of_birth: data.DoB,
                 photoURL: ''
             }
             )
@@ -260,10 +262,11 @@ const refreshTable = async () => {
                 first_name: String(data.name.first),
                 last_name: String(data.name.last),
                 gender: String(data.gender),
-                postion: String(data.position),
+                position: String(data.position),
                 number: Number(data.number),
                 state_of_origin: String(data.stateOfOrigin),
-                date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`
+                date_of_birth: String(data.DoB),
+                photoURL: ''
             }
             )
         })
