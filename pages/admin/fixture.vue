@@ -1,4 +1,8 @@
 <template>
+
+    <Head>
+        <Title>Fixtures | Valiant FC</Title>
+    </Head>
     <section>
         <div>
             <h1 class="text-white capitalize text-2xl max-w-[1024px] mx-auto my-6">Fixtures</h1>
