@@ -7,6 +7,8 @@ const { data } = useFetch<TeamStat[]>('/api/leagueTable')
 
 const { data: news } = await useFetch('/api/get-news')
 const Headlines = news.value.filter((_article: Article, i: number) => i < 3)
+const firstNews = news.value.filter((_article: Article, i: number) => i >= 3 && i < 8)
+const secondNews = news.value.filter((_article: Article, i: number) => i >= 8 && i < 15)
 </script>
 
 <template>
@@ -30,25 +32,18 @@ const Headlines = news.value.filter((_article: Article, i: number) => i < 3)
 
     </Swiper>
 
-    <div class="w-full flex items-center justify-center gap-4 mt-4">
-      <div class="w-[10px] h-[10px] border-2 border-primary rounded-full bg-primary"></div>
-      <div class="w-[10px] h-[10px] border-2 border-primary rounded-full "></div>
-      <div class="w-[10px] h-[10px] border-2 border-primary rounded-full "></div>
-    </div>
   </section>
   <section class=" max-w-[900px] mx-auto my-6">
-    <h2 class="uppercase font-bold">latest updates</h2>
-    <NewsCard v-for="article in news" :key="article.id" :article="article" />
-  </section>
-  <section class=" max-w-[900px] mx-auto my-6">
-    <h2 class="uppercase font-bold">latest videos</h2>
-    <NewsCard v-for="article in news" :key="article.id" :article="article" />
+    <NewsCard v-for="article in firstNews" :key="article.id" :article="article" />
   </section>
   <section class=" max-w-[900px] mx-auto my-6 flex flex-col items-center">
     <h2 class="uppercase font-bold">Fixtures</h2>
     <MatchFixture />
     <MatchFixture />
     <button class="capitalize text-white bg-primary font-bold py-2 px-6 rounded-[8px] mt-4">view all fixtures</button>
+  </section>
+  <section class=" max-w-[900px] mx-auto my-6">
+    <NewsCard v-for="article in secondNews" :key="article.id" :article="article" />
   </section>
   <section class=" max-w-[900px] mx-auto my-6 flex flex-col items-center">
     <h2 class="uppercase font-bold">Sponsors</h2>
