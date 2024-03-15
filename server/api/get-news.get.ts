@@ -6,7 +6,7 @@ export default defineEventHandler(async () => {
 		const q = query(
 			collection(fireStore, "news"),
 			orderBy("publishedAt", "desc"),
-			limit(10)
+			limit(20)
 		);
 		const data: any = [];
 		const querySnapShot = await getDocs(q);
