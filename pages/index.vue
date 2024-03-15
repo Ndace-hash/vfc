@@ -1,30 +1,30 @@
 <script setup lang="ts">
 import { useStorage } from '@vueuse/core'
 import LeagueTable from '~/components/LeagueTable.vue';
+import type { Article } from '~/types/News';
 import type { TeamStat } from '~/types/Team';
 const { data } = useFetch<TeamStat[]>('/api/leagueTable')
 
-const route = useRoute()
 const { data: news } = await useFetch('/api/get-news')
-const localNews = useStorage('news', news.value)
+const Headlines = news.value.filter((_article: Article, i: number) => i < 3)
 </script>
 
 <template>
   <section class="w-full mx-auto overflow-hidden max-w-[900px]">
     <Swiper :modules="[SwiperAutoplay, SwiperEffectCreative]" :slides-per-view="1" :speed="4000" :loop="true"
       :effect="'creative'" :autoplay="{
-        delay: 3000,
-        disableOnInteraction: true
-      }" :creative-effect="{
-  prev: {
-    shadow: true,
-    translate: ['-100%', 0, -1],
-  },
-  next: {
-    translate: ['100%', 0, 0],
-  },
-}">
-      <SwiperSlide v-for="article in news" :key="article.id">
+      delay: 3000,
+      disableOnInteraction: true
+    }" :creative-effect="{
+      prev: {
+        shadow: true,
+        translate: ['-100%', 0, -1],
+      },
+      next: {
+        translate: ['100%', 0, 0],
+      },
+    }">
+      <SwiperSlide v-for="article in Headlines" :key="article.id">
         <CaroselItem :article="article" />
       </SwiperSlide>
 
