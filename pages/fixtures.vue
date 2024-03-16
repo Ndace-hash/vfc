@@ -4,9 +4,12 @@
         <div class="bg-admin-light">
 
             <div class="ps-4 py-2 flex gap-6 text-white uppercase max-w-[1024px] mx-auto">
-                <button @click.prevent="viewTab('fixture')">Fixture</button>
-                <button @click.prevent="viewTab('result')">Result</button>
-                <button @click.prevent="viewTab('table')">Table</button>
+                <button @click.prevent="viewTab('fixture')"
+                    :class="[($route.query.tab == 'fixture' || $route.query.tab == null) ? 'border-b-2 border-b-white' : '', 'py-1']">Fixture</button>
+                <button @click.prevent="viewTab('result')"
+                    :class="[($route.query.tab == 'result') ? 'border-b-2 border-b-white' : '', 'py-1']">Result</button>
+                <button @click.prevent="viewTab('table')"
+                    :class="[$route.query.tab == 'table' ? 'border-b-2 border-b-white' : '', 'py-1']">Table</button>
             </div>
         </div>
 
@@ -45,6 +48,11 @@ onBeforeMount(() => {
 })
 
 const tabs = shallowRef([Fixtures, Results, Table])
+
+const { data } = useFetch('/api/get-fixtures')
+const fixtures = data.value![0]
+const results = data.value![1]
+console.log(data.value)
 </script>
 
 <style scoped></style>
