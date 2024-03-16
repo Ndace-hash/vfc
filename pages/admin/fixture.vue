@@ -116,7 +116,7 @@
 
 <script setup lang="ts">
 import { fireStore } from '~/config/firebase'
-import { collection, getDocs, addDoc, doc, setDoc } from 'firebase/firestore'
+import { collection, getDocs, addDoc, doc, setDoc, Timestamp } from 'firebase/firestore'
 import { DatePicker } from 'v-calendar'
 import { z } from 'zod'
 definePageMeta({
@@ -133,7 +133,7 @@ const state = reactive({
 })
 const schema = z.object({
     venue: z.string(),
-    date: z.string()
+    date: z.date()
 
 })
 const clubs = ref<any>([])
@@ -159,17 +159,19 @@ const addFixture = () => {
             home: 0,
             away: 0,
         },
-        date: state.date
+        date: Timestamp.fromDate(state.date)
     })
     if (state.venue == 'home') {
-        fixture.value.away = state.oponent
+        fixture.value.away = state.opponent
         fixture.value.home = valiant.value
     } else if (state.venue == 'away') {
-        fixture.value.home = state.oponent
+        fixture.value.home = state.opponent
         fixture.value.away = valiant.value
 
     }
     try {
+        console.log(fixture.value);
+
         addDoc(collection(fireStore, 'fixtures'), fixture.value).then((snapshot) => {
             console.log(snapshot)
         })
