@@ -6,17 +6,20 @@ import {
 	where,
 	orderBy,
 	Timestamp,
+	limit,
 } from "firebase/firestore";
 export default defineEventHandler(async () => {
 	const q1 = query(
 		collection(fireStore, "fixtures"),
 		where("date", ">=", Timestamp.now()),
-		orderBy("date", "asc")
+		orderBy("date", "asc"),
+		limit(20)
 	);
 	const q2 = query(
 		collection(fireStore, "fixtures"),
 		where("date", "<", Timestamp.now()),
-		orderBy("date", "desc")
+		orderBy("date", "desc"),
+		limit(20)
 	);
 	const futureGames = [] as any[];
 	const pastGames = [] as any[];
