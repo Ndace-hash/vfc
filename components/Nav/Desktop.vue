@@ -9,7 +9,7 @@
             <nav class="nav-links">
                 <RouterLink to="/players">Player</RouterLink>
                 <RouterLink to="/club">Club</RouterLink>
-                <RouterLink to="/">Fixtures</RouterLink>
+                <RouterLink to="/fixtures">Fixtures</RouterLink>
             </nav>
         </div>
     </header>
