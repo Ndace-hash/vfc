@@ -13,6 +13,7 @@
 <script setup lang="ts">
 import * as cheerio from 'cheerio'
 import type { Article } from '~/types/News'
+import { timestampToDate } from '~/composables/useTimestamp'
 const router = useRouter()
 const props = defineProps<{ article: Article }>()
 const viewNews = (id: string) => {
@@ -22,11 +23,7 @@ const viewNews = (id: string) => {
 }
 const article = ref({
     ...props.article,
-    publishedAt: (() => {
-        let nano = props.article.publishedAt.nanoseconds * (10 ** -9)
-        let milliSeconds = (props.article.publishedAt.seconds + nano) * 1000
-        return new Date(milliSeconds).toDateString()
-    })()
+    publishedAt: timestampToDate(props.article.publishedAt)
 })
 const trimedHTML = () => {
     const $ = cheerio.load(props.article.content)
