@@ -9,6 +9,12 @@ const { data: news } = await useFetch('/api/get-news')
 const Headlines = news.value.filter((_article: Article, i: number) => i < 3)
 const firstNews = news.value.filter((_article: Article, i: number) => i >= 3 && i < 8)
 const secondNews = news.value.filter((_article: Article, i: number) => i >= 8 && i < 15)
+
+const { data: fixtures } = await useFetch('/api/get-fixtures')
+const futureGames = fixtures.value[0]
+const pastGames = fixtures.value[1]
+
+
 </script>
 
 <template>
@@ -38,8 +44,8 @@ const secondNews = news.value.filter((_article: Article, i: number) => i >= 8 &&
   </section>
   <section class=" max-w-[900px] mx-auto my-6 flex flex-col items-center">
     <h2 class="uppercase font-bold">Fixtures</h2>
-    <MatchFixture />
-    <MatchFixture />
+    <MatchFixture NextOrPrev="Next" :game="futureGames[0]" />
+    <MatchFixture NextOrPrev="Last" :game="pastGames[0]" />
     <button class="capitalize text-white bg-primary font-bold py-2 px-6 rounded-[8px] mt-4">view all fixtures</button>
   </section>
   <section class=" max-w-[900px] mx-auto my-6">
