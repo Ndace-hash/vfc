@@ -46,7 +46,8 @@ const pastGames = fixtures.value[1]
     <h2 class="uppercase font-bold">Fixtures</h2>
     <MatchFixture NextOrPrev="Next" :game="futureGames[0]" />
     <MatchFixture NextOrPrev="Last" :game="pastGames[0]" />
-    <button class="capitalize text-white bg-primary font-bold py-2 px-6 rounded-[8px] mt-4">view all fixtures</button>
+    <button class="capitalize text-white bg-primary font-bold py-2 px-6 rounded-[8px] mt-4"
+      @click="() => $router.push('/fixtures')">view all fixtures</button>
   </section>
   <section class=" max-w-[900px] mx-auto my-6">
     <NewsCard v-for="article in secondNews" :key="article.id" :article="article" />
