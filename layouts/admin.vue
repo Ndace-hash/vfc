@@ -42,6 +42,9 @@
                         <UFormGroup label="Email" required name="email">
                             <UInput placeholder="email" type="email" v-model="state.email" />
                         </UFormGroup>
+                        <UFormGroup label="Password" required name="password">
+                            <UInput placeholder="email" type="email" v-model="state.password" />
+                        </UFormGroup>
                         <UFormGroup class="mt-2">
                             <UButton type="submit" label="Submit" />
                         </UFormGroup>
@@ -77,6 +80,7 @@ const schema = z.object({
     lastName: z.string(),
     phone: z.string(),
     email: z.string().email('Invalid Email'),
+    password: z.string().min(10)
 })
 
 type Schema = z.output<typeof schema>
@@ -86,7 +90,7 @@ const state = reactive({
     lastName: undefined,
     phone: undefined,
     email: '',
-    password: generateRandomPassword()
+    password: ''
 })
 
 const userStore = useUserStore()
