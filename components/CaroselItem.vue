@@ -5,7 +5,7 @@
         <div class="z-40 flex flex-col text-white px-10 justify-end py-4 gap-4 w-full md:w-2/3">
             <h2 class="capitalize font-bold text-xl md:text-3xl drop-shadow-lg">{{ article.title }}</h2>
             <p class=" text-sm md:text-base drop-shadow-xl overflow-hidden h-12" v-html="trimedHTML()"></p>
-            <p class="text-xs md:text-sm drop-shadow-lg font-semibold">{{ article.publishedAt }}</p>
+            <p class="text-xs md:text-sm drop-shadow-lg font-semibold">{{ article.publishedAt.toDateString() }}</p>
         </div>
     </div>
 </template>
