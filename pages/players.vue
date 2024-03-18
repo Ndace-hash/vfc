@@ -24,7 +24,7 @@ onBeforeMount(async () => {
                 first_name: String(data.name.first),
                 last_name: String(data.name.last),
                 gender: String(data.gender),
-                postion: String(data.position),
+                position: String(data.position),
                 number: Number(data.number),
                 state_of_origin: String(data.stateOfOrigin),
                 date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`,
@@ -39,7 +39,7 @@ onBeforeMount(async () => {
 
 const seperatePlayersByPosition = (position: string) => {
     return computed(() => {
-        return players.value.filter(player => player.postion.toLowerCase() === position)
+        return players.value.filter(player => player.position.toLowerCase() === position)
     })
 }
 
