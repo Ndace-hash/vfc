@@ -25,7 +25,72 @@
             </div>
             <div class="h-[500px] overflow-y-scroll">
                 <UTable v-model="selected" :rows="filteredRows" :columns="columns"
-                    :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No players.' }" />
+                    :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No players.' }">
+                    <template #actions-data="{ row }">
+                        <UDropdown :items="items(row)">
+                            <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+                        </UDropdown>
+                    </template>
+                </UTable>
+
+                <UModal v-model="editPlayerModal">
+                    <UCard>
+                        <template #header>
+                            <h2 class="text-primary font-bold text-xl mb-2">Edit a player</h2>
+                            <p class="text-sm text-admin-dark">Fill out the form to edit player information.</p>
+                        </template>
+                        <template #default>
+
+                            <UForm :state="playerToEdit" @submit="updatePlayerInfo" :schema="schema">
+                                <div class="w-[150px] mb-4">
+                                    <img ref="imagePreview" class="w-full h-full" :src="playerToEdit.photoURL" />
+                                </div>
+
+                                <UFormGroup label="Player Image " class="mb-4" required>
+
+                                    <label for="club"
+                                        class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
+                                        <UIcon name="i-ant-design-upload-outlined" dynamic />
+                                        Player Photo
+                                    </label>
+                                    <input type="file" id="club" ref="inputFile" class="opacity-0"
+                                        accept=".jpg, .png, .jpeg" @change="previewFile" />
+                                </UFormGroup>
+
+                                <div class="flex items-center gap-4 mb-3">
+
+                                    <UFormGroup label="First Name" class="w-1/2" name="firstName" required>
+                                        <UInput v-model="playerToEdit.firstName" />
+                                    </UFormGroup>
+                                    <UFormGroup label="Last Name" class="w-1/2" name="lastName" required>
+                                        <UInput v-model="playerToEdit.lastName" />
+                                    </UFormGroup>
+                                </div>
+                                <div class="flex items-center gap-4 mb-3">
+
+                                    <UFormGroup label="Position" name="position" required>
+                                        <USelect v-model="playerToEdit.position"
+                                            :options="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
+                                    </UFormGroup>
+                                    <UFormGroup label="Jersey Number" name="number" required>
+                                        <UInput v-model="playerToEdit.number" />
+                                    </UFormGroup>
+                                    <UFormGroup label="Gender" name="gender" required>
+                                        <USelect v-model="playerToEdit.gender" :options="['Male', 'Female']" />
+                                    </UFormGroup>
+                                </div>
+                                <UFormGroup label="Date Of Birth" class="mb-3" name="DoB" required>
+                                    <DatePicker v-model="playerToEdit.DoB" mode="date" />
+                                </UFormGroup>
+                                <UFormGroup label="State of Origin" name="stateOforigin" required>
+                                    <UInputMenu v-model="playerToEdit.stateOfOrigin" :options="States" />
+                                </UFormGroup>
+
+                                <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Edit</UButton>
+                            </UForm>
+                        </template>
+                    </UCard>
+                </UModal>
             </div>
         </div>
         <UModal v-model="isOpen">
@@ -36,7 +101,7 @@
                 </template>
                 <template #default>
 
-                    <UForm :state="state" @submit="addPlayer" :schema="schema">
+                    <UForm :state="state" :schema="schema" @submit="addPlayer">
                         <div class="w-[150px] mb-4" v-show="!hidePreview">
                             <img ref="imagePreview" class="w-full h-full" />
                         </div>
@@ -55,10 +120,10 @@
                         <div class="flex items-center gap-4 mb-3">
 
                             <UFormGroup label="First Name" class="w-1/2" name="firstName" required>
-                                <UInput v-model="state.name.first" />
+                                <UInput v-model="state.firstName" />
                             </UFormGroup>
                             <UFormGroup label="Last Name" class="w-1/2" name="lastName" required>
-                                <UInput v-model="state.name.last" />
+                                <UInput v-model="state.lastName" />
                             </UFormGroup>
                         </div>
                         <div class="flex items-center gap-4 mb-3">
@@ -81,7 +146,8 @@
                             <UInputMenu v-model="state.stateOfOrigin" :options="States" />
                         </UFormGroup>
 
-                        <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Add</UButton>
+                        <UButton type="submit" :loading="isLoading" size="sm" class="mt-6 px-6" color="primary">Add
+                        </UButton>
                     </UForm>
                 </template>
             </UCard>
@@ -93,49 +159,84 @@
 <script setup lang="ts">
 import { DatePicker } from 'v-calendar'
 import { fireStore, storage } from '~/config/firebase'
-import { getDocs, addDoc, collection } from 'firebase/firestore'
+import { getDocs, addDoc, collection, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
-import type { Player } from '~/types/Player';
 import { z } from 'zod'
+import type { FormSubmitEvent } from '#ui/types'
+import { timestampToDate } from '~/composables/useTimestamp'
+
 definePageMeta({
     layout: 'admin'
 })
 const isLoading = ref(false)
 const isOpen = ref(false)
 const selected = ref([])
-const players = ref<Player[]>([])
+const players = ref<any>([])
 const inputFile = ref<HTMLInputElement | null>()
+const editPlayerModal = ref(false)
 
 
 const state = reactive({
-    name: {
-        first: '',
-        last: ''
-    },
-    photoURL: '',
-    position: '',
+    firstName: undefined,
+    lastName: undefined,
+    photoURL: undefined,
+    position: undefined,
     number: undefined,
     DoB: new Date(),
-    stateOfOrigin: '',
-    gender: ''
+    stateOfOrigin: undefined,
+    gender: undefined
 
 })
 
+
 const schema = z.object({
-    firstName: z.string(),
-    lastName: z.string(),
-    position: z.string(),
-    number: z.number(),
-    state: z.string(),
+    firstName: z.string().trim().min(1),
+    lastName: z.string().trim().min(1),
+    position: z.string().trim().min(1),
+    number: z.string().trim().min(1),
+    stateOfOrigin: z.string(),
     DoB: z.date(),
     gender: z.string()
 
 })
+
+type Schema = z.output<typeof schema>
+const playerToEdit = ref()
+const items = (row: any) => [
+    [{
+        label: 'Edit',
+        icon: 'i-heroicons-pencil-square-20-solid',
+        click: () => {
+
+            players.value.forEach(player => {
+                if (row.id == player.id) playerToEdit.value = { ...player, DoB: timestampToDate(player.DoB) }
+            })
+            editPlayerModal.value = true
+            console.log(playerToEdit.value)
+        }
+    }, {
+        label: 'Delete',
+        icon: 'i-heroicons-trash-20-solid',
+        click: () => {
+            try {
+                if (confirm(`Are you sure you want to delete ${row.first_name} ${row.last_name}?`)) {
+                    deleteDoc(doc(fireStore, 'players', row.id))
+                    players.value = players.value.filter(player => player.id !== row.id)
+                }
+
+            } catch (error) {
+                console.log(error)
+                return error
+            }
+        }
+    }]
+]
+
 const columns = [{
-    key: 'first_name',
+    key: 'firstName',
     label: 'First Name'
 }, {
-    key: 'last_name',
+    key: 'lastName',
     label: 'Last Name'
 },
 {
@@ -154,22 +255,21 @@ const columns = [{
 const collectionRef = collection(fireStore, 'players')
 // const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const States = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara']
-const addPlayer = async () => {
-    isLoading.value = true
+async function addPlayer(event: FormSubmitEvent<Schema>) {
     try {
+        isLoading.value = true
         const data = {
-            name: {
-                first: state.name.first,
-                last: state.name.last
-            },
+
+            firstName: state.firstName,
+            lastName: state.lastName,
             photoURL: '',
             position: state.position,
             number: state.number,
-            DoB: state.DoB.toString(),
+            DoB: state.DoB,
             stateOfOrigin: state.stateOfOrigin,
             gender: state.gender
         }
-        const fileName = `${state.name.first}_${state.name.last}.png`
+        const fileName = `${state.firstName}_${state.lastName}.png`
         if (inputFile.value?.files !== null) {
             const clubRef = storageRef(storage, `players/${fileName}`)
 
@@ -185,17 +285,19 @@ const addPlayer = async () => {
                 hidePreview.value = true
                 imagePreview.value!.src = ''
                 state.DoB = new Date()
-                state.name.first = ''
-                state.name.last = ''
-                state.gender = ''
+                state.firstName = undefined
+                state.lastName = undefined
+                state.gender = undefined
                 state.number = undefined
-                state.position = ''
-                state.stateOfOrigin = ''
-                state.photoURL = ''
+                state.position = undefined
+                state.stateOfOrigin = undefined
+                state.photoURL = undefined
                 isLoading.value = false
             })
 
         }
+        isLoading.value = false
+        isOpen.value = false
     } catch (e) {
 
         isLoading.value = false
@@ -211,14 +313,7 @@ onBeforeMount(async () => {
 
             players.value.push({
                 id: doc.id,
-                first_name: String(data.name.first),
-                last_name: String(data.name.last),
-                gender: String(data.gender),
-                position: String(data.position),
-                number: Number(data.number),
-                state_of_origin: String(data.stateOfOrigin),
-                date_of_birth: data.DoB,
-                photoURL: ''
+                ...data
             }
             )
         })
@@ -234,7 +329,7 @@ const filteredRows = computed(() => {
         return players.value
     }
 
-    return players.value.filter((player) => {
+    return players.value.filter(player => {
         return Object.values(player).some((value) => {
             return String(value).toLowerCase().includes(q.value.toLowerCase())
         })
@@ -259,14 +354,7 @@ const refreshTable = async () => {
             const data = doc.data()
             players.value.push({
                 id: doc.id,
-                first_name: String(data.name.first),
-                last_name: String(data.name.last),
-                gender: String(data.gender),
-                position: String(data.position),
-                number: Number(data.number),
-                state_of_origin: String(data.stateOfOrigin),
-                date_of_birth: String(data.DoB),
-                photoURL: ''
+                ...data
             }
             )
         })
@@ -277,6 +365,57 @@ const refreshTable = async () => {
         console.log(e)
     }
 }
+
+async function updatePlayerInfo(event: FormSubmitEvent<Schema>) {
+    try {
+        isLoading.value = true
+        const data = {
+
+            firstName: playerToEdit.value.firstName,
+            lastName: playerToEdit.value.lastName,
+            photoURL: playerToEdit.value.photoURL,
+            position: playerToEdit.value.position,
+            number: playerToEdit.value.number,
+            DoB: Timestamp.fromDate(playerToEdit.value.DoB),
+            stateOfOrigin: playerToEdit.value.stateOfOrigin,
+            gender: playerToEdit.value.gender
+        }
+        const fileName = `${playerToEdit.value.firstName}_${playerToEdit.value.lastName}.png`
+        if (inputFile.value?.files !== null) {
+            const clubRef = storageRef(storage, `players/${fileName}`)
+
+            await uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
+                getDownloadURL(snapshot.ref).then((url) => {
+                    data.photoURL = url
+                }).then(() => {
+                    setDoc(doc(collectionRef, playerToEdit.value.id), data)
+
+                })
+            }).then(() => {
+                inputFile.value!.files = null
+                hidePreview.value = true
+                imagePreview.value!.src = ''
+                state.DoB = new Date()
+                state.firstName = undefined
+                state.lastName = undefined
+                state.gender = undefined
+                state.number = undefined
+                state.position = undefined
+                state.stateOfOrigin = undefined
+                state.photoURL = undefined
+                isLoading.value = false
+            })
+
+        }
+        isLoading.value = false
+        editPlayerModal.value = false
+    } catch (e) {
+
+        isLoading.value = false
+        console.log(e)
+    }
+}
+
 </script>
 
 <style scoped></style>
