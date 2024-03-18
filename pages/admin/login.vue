@@ -12,6 +12,8 @@
                     </UFormGroup>
                     <UFormGroup label="Password" class="w-3/4" name="password">
                         <UInput type="password" v-model="state.password" />
+                        <RouterLink to="/admin/reset-password" class="underline text-primary py-4">Forgot your password?
+                        </RouterLink>
                     </UFormGroup>
                     <UFormGroup>
                         <UButton label="Login" type="submit" />
