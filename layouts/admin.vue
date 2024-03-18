@@ -8,7 +8,7 @@
             <nav class="flex flex-col gap-6 text-white">
                 <RouterLink to="/admin" class="flex items-center justify-start gap-3 ">
                     <IconUser class="" color="#ffffff" width="50px" />
-                    <span class="text-white font-bold flex items-center gap-10">{{ userStore.currentUser.displayName }}
+                    <span class="text-white font-bold flex items-center gap-10">{{ userStore.currentUser?.displayName }}
                     </span>
                 </RouterLink>
                 <RouterLink to="/admin/players" class="font-bold capitalize">players</RouterLink>
@@ -16,7 +16,11 @@
                 <RouterLink to="/admin/club" class="font-bold capitalize">Clubs </RouterLink>
                 <RouterLink to="/admin/fixture" class="font-bold capitalize">Fixtures</RouterLink>
                 <UButton @click="openModal = true" class="font-bold capitalize">Create Admin</UButton>
+                <UButton label="sign out" class="self-start" variant="outline" color="white" @click="() => {
+                        auth.signOut()
+                    }" />
             </nav>
+
 
         </section>
         <section class="bg-admin-light min-h-screen w-full overflow-y-auto ms-[300px]">
