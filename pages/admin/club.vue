@@ -1,8 +1,10 @@
 <template>
     <section>
-        <h1 class="text-white capitalize text-2xl max-w-[1024px] mx-auto my-6">Clubs <span class="font-semibold">List</span>
+        <h1 class="text-white capitalize text-2xl max-w-[1024px] mx-auto my-6">Clubs <span
+                class="font-semibold">List</span>
         </h1>
-        <div class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-hidden">
+        <div
+            class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-hidden">
             <div class="flex items-center py-4 px-4 justify-between border-b border-admin-light">
                 <button
                     class="flex bg-primary text-white border-2 border-primary items-center justify-center gap-1   font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
@@ -14,7 +16,8 @@
                     <UButton
                         class="bg-transparent text-admin-dark flex items-center border-2 border-primary hover:text-white"
                         @click="refresh" :disabled="isRefreshing">
-                        <IconRefresh width="15px" :class="isRefreshing ? 'duration-1000 ease-linear animate-spin' : ''" />
+                        <IconRefresh width="15px"
+                            :class="isRefreshing ? 'duration-1000 ease-linear animate-spin' : ''" />
                         Refresh
                     </UButton>
                     <UInput placeholder="filter clubs..." v-model="q" />
@@ -40,7 +43,7 @@
                     <h1 class="text-primary font-semibold text-xl capitalize">Add new club</h1>
                 </template>
 
-                <UForm :state="state" @submit="submit">
+                <UForm :state="state" @submit="submit" :schema="schema">
                     <UFormGroup label="Club logo " class="mb-4">
 
                         <label for="club"
@@ -49,9 +52,9 @@
                             Upload
                         </label>
                         <input type="file" id="club" ref="inputFile" class="hidden" accept=".jpg, .png, .jpeg"
-                            @change="uploadFile" />
+                            @change="uploadFile" required />
                     </UFormGroup>
-                    <UFormGroup label="Club name" class="mb-4">
+                    <UFormGroup label="Club name" class="mb-4" name="name">
                         <UInput placeholder="Club name" v-model="state.name" />
                     </UFormGroup>
                     <div class="w-[150px] mb-4" v-show="!hidePreview">
@@ -68,6 +71,7 @@
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { getDocs, addDoc, collection, type DocumentData } from 'firebase/firestore'
 import { storage, fireStore } from '~/config/firebase'
+import { z } from 'zod'
 definePageMeta({
     layout: 'admin'
 })
@@ -78,8 +82,12 @@ const isLoading = ref(false)
 const hidePreview = ref(true)
 const state = reactive({
     logo: '',
-    name: ''
+    name: undefined as undefined | string
 })
+const schema = z.object({
+    name: z.string()
+})
+
 const clubColRef = collection(fireStore, 'clubs')
 const clubs = ref<DocumentData[]>([])
 
@@ -101,9 +109,7 @@ const refresh = () => {
                 clubs.value.push({ id: doc.id, logo: data.logo, name: data.name })
             })
         })
-
         isRefreshing.value = false
-
     } catch (e) {
         isRefreshing.value = false
         console.log(e)
@@ -115,7 +121,6 @@ const filteredClubs = computed(() => {
     if (!q.value) {
         return clubs.value
     }
-
     return clubs.value.filter((player) => {
         return Object.values(player).some((value) => {
             return String(value).toLowerCase().includes(q.value.toLowerCase())
@@ -127,7 +132,7 @@ const isRefreshing = ref(false)
 const submit = async () => {
     isLoading.value = true
     const clubName = state.name
-    const fileName = state.name.trim().toLowerCase().replaceAll(' ', '_')
+    const fileName = state.name?.trim().toLowerCase().replaceAll(' ', '_')
     if (inputFile.value?.files !== null) {
         try {
             const clubRef = storageRef(storage, `clubs/${fileName}`)
@@ -148,9 +153,6 @@ const submit = async () => {
                 imagePreview.value!.src = ''
                 isLoading.value = false
             })
-
-
-
         } catch (e) {
             console.error(e)
             isLoading.value = false
@@ -159,10 +161,8 @@ const submit = async () => {
 
 }
 const uploadFile: (payload: Event) => void = (payload) => {
-
     imagePreview.value!.src = URL.createObjectURL(payload.target?.files[0])
     hidePreview.value = false
-
 }
 </script>
 
