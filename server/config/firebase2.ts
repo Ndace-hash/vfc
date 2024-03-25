@@ -1,9 +1,10 @@
 // Import the functions you need from the SDKs you need
-import { initializeApp as clientApp } from "firebase/app";
+import { FirebaseOptions, initializeApp as clientApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 const runtimeConfig = useRuntimeConfig();
+
 const firebaseConfig = {
 	apiKey: runtimeConfig.apiKey,
 	authDomain: runtimeConfig.authDomain,
@@ -11,7 +12,7 @@ const firebaseConfig = {
 	storageBucket: runtimeConfig.storageBucket,
 	messagingSenderId: runtimeConfig.messagingSenderId,
 	appId: runtimeConfig.appId,
-};
+} as FirebaseOptions;
 
 // // Initialize Firebase
 const app = clientApp(firebaseConfig);
@@ -23,4 +24,4 @@ export const storage = getStorage(app);
 import { initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 const adminApp = initializeApp();
-export const authApp = getAuth();
+export const authApp = getAuth(adminApp);
