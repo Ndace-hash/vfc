@@ -34,12 +34,14 @@
 </template>
 
 <script setup lang="ts">
-import { auth } from '~/config/firebase'
+// import { auth } from '~/config/firebase'
+import { type FirebaseState } from '~/types/Firebase'
 import { sendPasswordResetEmail } from 'firebase/auth'
 import { z } from 'zod'
 definePageMeta({
     layout: false
 })
+const firebase = useState<FirebaseState>('firebase')
 const state = reactive({
     email: ''
 })
@@ -51,7 +53,7 @@ const isLoading = ref(false)
 const resetPassword = async () => {
     try {
         isLoading.value = true
-        await sendPasswordResetEmail(auth, state.email)
+        await sendPasswordResetEmail(firebase.value.auth, state.email)
         isLoading.value = false
         successful.value = true
     } catch (error) {
