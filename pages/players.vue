@@ -25,13 +25,13 @@ onBeforeMount(async () => {
 
             players.value?.push({
                 id: doc.id,
-                firstName: String(data.name.first),
-                lastName: String(data.name.last),
+                firstName: String(data.firstName),
+                lastName: String(data.lastName),
                 gender: String(data.gender),
                 position: String(data.position),
                 number: Number(data.number),
                 stateOfOrigin: String(data.stateOfOrigin),
-                DoB: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`,
+                DoB: data.DoB,
                 photoURL: String(data.photoURL)
             }
             )

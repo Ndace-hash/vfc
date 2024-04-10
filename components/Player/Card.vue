@@ -6,11 +6,11 @@
         </span>
         <div class="flex w-full h-full flex-col">
             <div class="h-3/4 flex items-center justify-center">
-                <img :src="playerData.photoURL" :alt="`Photo of ${playerData.first_name}`" class="w-full h-full" />
+                <img :src="playerData.photoURL" :alt="`Photo of ${playerData.firstName}`" class="w-full h-full" />
             </div>
             <div class="bg-white text-primary font-bold w-full px-2 py-4 justify-self-end">
-                <p class="text-lg">{{ playerData.first_name }}</p>
-                <p class="text-3xl">{{ playerData.last_name }}</p>
+                <p class="text-lg">{{ playerData.firstName }}</p>
+                <p class="text-3xl">{{ playerData.lastName }}</p>
             </div>
         </div>
     </article>
