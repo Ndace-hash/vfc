@@ -6,28 +6,32 @@
 </template>
 
 <script setup lang="ts">
-import { fireStore } from '~/config/firebase'
+// import { fireStore } from '~/config/firebase'
 import { getDocs, collection } from 'firebase/firestore'
 import type { Player } from '~/types/Player';
+import type { FirebaseState } from '~/types/Firebase'
 
+const firebase = useState<FirebaseState>('firebase')
 const players = ref<Player[]>([])
-const collectionRef = collection(fireStore, 'players')
+const collectionRef = collection(firebase.value.fireStore, 'players')
 onBeforeMount(async () => {
+    // const { data, error } = useFetch<Player[]>('/api/get-players')
+    // players.value = data.value
     try {
         const snapshot = await getDocs(collectionRef)
 
         snapshot.docs.forEach((doc) => {
             const data = doc.data()
 
-            players.value.push({
+            players.value?.push({
                 id: doc.id,
-                first_name: String(data.name.first),
-                last_name: String(data.name.last),
+                firstName: String(data.name.first),
+                lastName: String(data.name.last),
                 gender: String(data.gender),
                 position: String(data.position),
                 number: Number(data.number),
-                state_of_origin: String(data.stateOfOrigin),
-                date_of_birth: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`,
+                stateOfOrigin: String(data.stateOfOrigin),
+                DoB: `${data.DoB.day} ${data.DoB.month}, ${data.DoB.year}`,
                 photoURL: String(data.photoURL)
             }
             )
@@ -39,7 +43,7 @@ onBeforeMount(async () => {
 
 const seperatePlayersByPosition = (position: string) => {
     return computed(() => {
-        return players.value.filter(player => player.position.toLowerCase() === position)
+        return players.value?.filter(player => player.position.toLowerCase() === position)
     })
 }
 
@@ -49,5 +53,3 @@ const midfielders = seperatePlayersByPosition('midfielder')
 const forwards = seperatePlayersByPosition('forward')
 
 </script>
-
-<style scoped></style>

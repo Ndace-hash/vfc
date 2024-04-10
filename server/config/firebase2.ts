@@ -2,6 +2,9 @@
 import { FirebaseOptions, initializeApp as clientApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
+import { getAuth as clientAuth } from "firebase/auth";
+import { initializeApp } from "firebase-admin/app";
+import { getAuth } from "firebase-admin/auth";
 
 const runtimeConfig = useRuntimeConfig();
 
@@ -20,8 +23,7 @@ const app = clientApp(firebaseConfig);
 // // initialize firestore
 export const fireStore = getFirestore(app);
 export const storage = getStorage(app);
+export const auth = clientAuth(app);
 
-import { initializeApp } from "firebase-admin/app";
-import { getAuth } from "firebase-admin/auth";
 const adminApp = initializeApp();
 export const authApp = getAuth(adminApp);

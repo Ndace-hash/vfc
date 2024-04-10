@@ -1,33 +1,33 @@
 <template>
     <div class="w-full">
         <div v-if="editor" class="flex flex-wrap gap-2 mb-4">
-            <UButton @click="editor.chain().focus().toggleBold().run()"
+            <UButton @click="editor?.chain().focus().toggleBold().run()"
                 :disabled="!editor.can().chain().focus().toggleBold().run()" class=" border border-primary" size="xs"
                 :variant="editor.isActive('bold') ? 'solid' : 'ghost'">
                 <UIcon name="i-material-symbols-format-bold" dynamic class="text-2xl" />
             </UButton>
-            <UButton @click="editor.chain().focus().toggleItalic().run()"
+            <UButton @click="editor?.chain().focus().toggleItalic().run()"
                 :disabled="!editor.can().chain().focus().toggleItalic().run()" class=" border border-primary" size="xs"
                 :variant="editor.isActive('italic') ? 'solid' : 'ghost'">
                 <UIcon name="i-material-symbols-format-italic" dynamic class="text-2xl" />
             </UButton>
-            <UButton @click="editor.chain().focus().toggleHeading({ level: 1 }).run()" class=" border border-primary"
+            <UButton @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()" class=" border border-primary"
                 size="xs" :variant="editor.isActive('heading', { level: 1 }) ? 'solid' : 'ghost'">
                 H1
             </UButton>
-            <UButton @click="editor.chain().focus().toggleHeading({ level: 2 }).run()" class=" border border-primary"
+            <UButton @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()" class=" border border-primary"
                 size="xs" :variant="editor.isActive('heading', { level: 2 }) ? 'solid' : 'ghost'">
                 H2
             </UButton>
-            <UButton @click="editor.chain().focus().toggleBulletList().run()" class=" border border-primary" size="xs"
+            <UButton @click="editor?.chain().focus().toggleBulletList().run()" class=" border border-primary" size="xs"
                 :variant="editor.isActive('bulletList') ? 'solid' : 'ghost'">
                 <UIcon name="i-material-symbols-format-list-bulleted" dynamic class="text-2xl" />
             </UButton>
-            <UButton @click="editor.chain().focus().toggleOrderedList().run()" class=" border border-primary" size="xs"
+            <UButton @click="editor?.chain().focus().toggleOrderedList().run()" class=" border border-primary" size="xs"
                 :variant="editor.isActive('orderedList') ? 'solid' : 'ghost'">
                 <UIcon name="i-material-symbols-format-list-numbered" dynamic class="text-2xl" />
             </UButton>
-            <UButton @click="editor.chain().focus().toggleBlockquote().run()" class=" border border-primary" size="xs"
+            <UButton @click="editor?.chain().focus().toggleBlockquote().run()" class=" border border-primary" size="xs"
                 :variant="editor.isActive('blockquote') ? 'solid' : 'ghost'">
 
                 <UIcon name="i-tabler-blockquote" dynamic class="text-2xl" />
@@ -40,13 +40,15 @@
                 <UIcon name="i-material-symbols-add-photo-alternate-outline" dynamic class="text-2xl" />
                 <input type="file" accept=".jpg, .png, .jpeg, .gif" class="hidden" id="image" ref="imageInput" />
             </label>
-            <UButton @click="editor.chain().focus().setHorizontalRule().run()">
+            <UButton @click="editor?.chain().focus().setHorizontalRule().run()">
                 <UIcon name="i-carbon-ruler" dynamic class="text-2xl" />
             </UButton>
-            <UButton @click="editor.chain().focus().undo().run()" :disabled="!editor.can().chain().focus().undo().run()">
+            <UButton @click="editor?.chain().focus().undo().run()"
+                :disabled="!editor.can().chain().focus().undo().run()">
                 <UIcon name="i-ic-baseline-undo" dynamic class="text-2xl" />
             </UButton>
-            <UButton @click="editor.chain().focus().redo().run()" :disabled="!editor.can().chain().focus().redo().run()">
+            <UButton @click="editor?.chain().focus().redo().run()"
+                :disabled="!editor.can().chain().focus().redo().run()">
                 <UIcon name="i-ic-baseline-redo" dynamic class="text-2xl" />
             </UButton>
         </div>
@@ -58,7 +60,8 @@
 
 <script setup lang="ts">
 import { uploadBytes, ref as storageRef, getDownloadURL } from 'firebase/storage'
-import { storage } from '~/config/firebase';
+// import { storage } from '~/config/firebase';
+import { type FirebaseState } from '~/types/Firebase'
 import { useEditor, EditorContent } from '@tiptap/vue-3'
 import TiptapStarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link';
@@ -71,6 +74,7 @@ const props = defineProps({
     }
 })
 const emits = defineEmits(['update:modelValue'])
+const firebase = useState<FirebaseState>('firebase')
 const editor = useEditor({
     extensions: [TiptapStarterKit.configure({
         heading: {
@@ -122,7 +126,7 @@ const addImage = () => {
         if (imageInput.value?.files) {
             const file = imageInput.value?.files[0]
             const fileName = file.name.replaceAll(' ', '_')
-            uploadBytes(storageRef(storage, `newsAssets/${fileName}`), file).then(snapshot => {
+            uploadBytes(storageRef(firebase.value.storage, `newsAssets/${fileName}`), file).then(snapshot => {
                 getDownloadURL(snapshot.ref).then(url => {
                     editor.value?.chain().focus().setImage({ src: url }).run()
                     editor.value?.commands.createParagraphNear()

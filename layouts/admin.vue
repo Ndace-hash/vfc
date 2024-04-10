@@ -8,7 +8,8 @@
             <nav class="flex flex-col gap-6 text-white">
                 <RouterLink to="/admin" class="flex items-center justify-start gap-3 ">
                     <IconUser class="" color="#ffffff" width="50px" />
-                    <span class="text-white font-bold flex items-center gap-10">{{ userStore.currentUser?.displayName }}
+                    <span class="text-white font-bold flex items-center gap-10">{{
+                        firebase.auth.currentUser?.displayName }}
                     </span>
                 </RouterLink>
                 <RouterLink to="/admin/players" class="font-bold capitalize">players</RouterLink>
@@ -17,15 +18,15 @@
                 <RouterLink to="/admin/fixture" class="font-bold capitalize">Fixtures</RouterLink>
                 <UButton @click="openModal = true" class="font-bold capitalize">Create Admin</UButton>
                 <UButton label="sign out" class="self-start" variant="outline" color="white" @click="() => {
-                        auth.signOut()
-                        navigateTo('/admin/login')
-                    }" />
+                    firebase.auth.signOut()
+                    navigateTo('/admin/login')
+                }" />
             </nav>
 
 
         </section>
         <section
-            class="absolute inset-0 bg-gradient-to-tr from-[#fffffff6] to-[#ffffff] z-[999] blur-2xl flex items-center justify-center">
+            class="absolute inset-0 bg-gradient-to-tr from-[#fffffff6] to-[#ffffff] z-[999] blur-2xl flex items-center justify-center md:hidden">
             <h1 class="text-xl font-bold">Please vie this page on a larger screen size for better experience.</h1>
         </section>
         <section class="bg-admin-light min-h-screen w-full overflow-y-auto ms-[300px]">
@@ -52,7 +53,7 @@
                             <UInput placeholder="email" type="email" v-model="state.email" />
                         </UFormGroup>
                         <UFormGroup label="Password" required name="password">
-                            <UInput placeholder="email" type="email" v-model="state.password" />
+                            <UInput placeholder="password" type="password" v-model="state.password" />
                         </UFormGroup>
                         <UFormGroup class="mt-2">
                             <UButton type="submit" label="Submit" />
@@ -66,24 +67,15 @@
 </template>
 
 <script setup lang="ts">
-import { auth, fireStore } from '~/config/firebase'
+// import { auth, fireStore } from '~/config/firebase'
 import { createUserWithEmailAndPassword, updateProfile } from 'firebase/auth'
 import { addDoc, collection, doc, setDoc } from 'firebase/firestore'
 import { RouterLink } from 'vue-router';
 import { z } from 'zod'
-
+import type { FirebaseState } from '~/types/Firebase'
+const firebase = useState<FirebaseState>('firebase')
 const openModal = ref(false)
-const symbols = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#!'
-
-const generateRandomPassword = () => {
-    let password = ''
-    for (let i = 1; i <= 10; i++) {
-        const randomIndex = Math.floor(Math.random() * symbols.length)
-        password += symbols[randomIndex]
-    }
-
-    return password
-}
+const isLoading = ref(false)
 const schema = z.object({
     firstName: z.string(),
     lastName: z.string(),
@@ -102,16 +94,17 @@ const state = reactive({
     password: ''
 })
 
-const userStore = useUserStore()
+// const userStore = useUserStore()
 const createUser = async () => {
+    isLoading.value = true
     try {
-        const userCredential = await createUserWithEmailAndPassword(auth, state.email, state.password)
+        const userCredential = await createUserWithEmailAndPassword(firebase.value?.auth, state.email, state.password)
         const user = await userCredential.user
         updateProfile(userCredential.user, {
             displayName: `${state.firstName} ${state.lastName}`,
         }).then(() => {
 
-            const docRef = doc(fireStore, 'users', user.uid)
+            const docRef = doc(firebase.value?.fireStore, 'users', user.uid)
             setDoc(docRef, {
                 firstName: state.firstName,
                 lastName: state.lastName,
@@ -124,9 +117,17 @@ const createUser = async () => {
             method: 'POST',
             body: { email: state.email }
         })
-
+        state.firstName = undefined
+        state.lastName = undefined
+        state.phone = undefined
+        state.email = ''
+        state.password = ''
+        openModal.value = false
+        isLoading.value = false
     } catch (e) {
         console.log(e)
+        isLoading.value = false
+
     }
 
 }

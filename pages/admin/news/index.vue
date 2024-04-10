@@ -4,7 +4,7 @@
         <Title>Publish News | Valiant FC</Title>
     </Head>
     <div class="flex items-center justify-center  max-w-[1024px] w-full">
-        <UForm :state="state" class="flex flex-col gap-6" @submit="publish" :schema="schema">
+        <UForm :state="state" class="flex flex-col gap-6" @submit="publish(state, inputFile!)" :schema="schema">
             <UFormGroup class="w-full mx-auto" required size="lg" name="title">
                 <template #label>
                     <p class="inline text-white font-semibold text-xl  me-1">Title</p>
@@ -50,10 +50,11 @@
 </template>
 
 <script setup lang="ts">
-import { fireStore, storage } from '~/config/firebase'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { collection, addDoc, Timestamp } from 'firebase/firestore'
 import { z } from 'zod'
+// import { useFirebaseSetup } from '~/composables/useFirebase'
+import type { FirebaseState } from '~/types/Firebase'
 
 definePageMeta({
     layout: 'admin'
@@ -69,27 +70,39 @@ const state = reactive({
 })
 const inputFile = ref<HTMLInputElement | null>()
 
+const firebase = useState<FirebaseState>('firebase')
+// const { fireStore, storage } = useFirebaseSetup()
 
-const publish = async () => {
-    const fileName = `${state.title.replaceAll(' ', '_')}.jpg`
-    if (inputFile.value?.files !== null) {
-        const clubRef = storageRef(storage, `news/${fileName}`)
+const publish = async (state: { title: string, content: string, bannerUrl: string }, inputFile: HTMLInputElement) => {
+    // try {
+    //     $fetch('/api/publish-article', {
+    //         method: 'post', body: {
+    //             state,
+    //             inputFile: inputFile.files![0]
+    //         }
+    //     })
 
-        await uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
-            getDownloadURL(snapshot.ref).then((url) => {
-                state.bannerUrl = url
-            }).then(() => {
-
-                addDoc(collection(fireStore, 'news'), {
-                    ...state,
-                    publishedAt: Timestamp.now()
-
-                }).then(snapshot => {
-                    console.log(snapshot)
+    // } catch (error) {
+    //     console.log(error)
+    // }
+    const fileName = `${state.title.replaceAll(" ", "_")}.jpg`;
+    if (inputFile.files !== null) {
+        console.log(inputFile);
+        const clubRef = storageRef(firebase.value.storage, `news/${fileName}`);
+        uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
+            getDownloadURL(snapshot.ref)
+                .then((url) => {
+                    state.bannerUrl = url;
                 })
-            })
-        })
-
+                .then(() => {
+                    addDoc(collection(firebase.value.fireStore, "news"), {
+                        ...state,
+                        publishedAt: Timestamp.now(),
+                    }).then((snapshot) => {
+                        console.log(snapshot);
+                    });
+                });
+        });
     }
 
 }

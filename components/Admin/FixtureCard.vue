@@ -1,7 +1,7 @@
 <template>
     <UCard class="relative">
         <h5 class="text-primary font-semibold text-lg text-center">{{ `${dayMasks[date[0]]} ${date[1]} ${date[2]},
-                    ${date[3]}.` }}</h5>
+            ${date[3]}.` }}</h5>
         <div class="flex justify-center items-center gap-5">
             <div class="flex items-center gap-2">
                 <div class="flex flex-col items-center">
@@ -50,9 +50,11 @@
 
 <script setup lang="ts">
 import { doc, deleteDoc } from 'firebase/firestore'
-import { fireStore } from '~/config/firebase'
+// import { fireStore } from '~/config/firebase'
+import { type FirebaseState } from '~/types/Firebase'
 const props = defineProps(['fixture'])
 const emits = defineEmits(['editFixture'])
+const firebase = useState<FirebaseState>('firebase')
 const dateFormat = props.fixture.date.toDate()
 const date = ref<string[]>(dateFormat.toString().split(' '))
 const dayMasks = {
@@ -72,7 +74,7 @@ const deleteFixture = (id: string) => {
 
         try {
 
-            deleteDoc(doc(fireStore, 'fixtures', id))
+            deleteDoc(doc(firebase.value.fireStore, 'fixtures', id))
         } catch (e) {
             console.error(e)
         }

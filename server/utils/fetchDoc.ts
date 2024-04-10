@@ -6,8 +6,9 @@ interface ObjectParameter {
 }
 export default async function (object: ObjectParameter) {
 	const { collectionRef } = object;
+	const data = [] as DocumentData[];
+	let error = null;
 	try {
-		const data = [] as DocumentData[];
 		const snapshot = await getDocs(collection(fireStore, collectionRef));
 		snapshot.docs.forEach((doc) => {
 			data.push({
@@ -15,8 +16,12 @@ export default async function (object: ObjectParameter) {
 				...doc.data(),
 			});
 		});
-		return data;
-	} catch (error) {
-		return error;
+	} catch (err) {
+		error = err;
 	}
+
+	return {
+		data,
+		error,
+	};
 }

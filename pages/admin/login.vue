@@ -25,14 +25,15 @@
 </template>
 
 <script setup lang="ts">
-import { auth } from '~/config/firebase'
+// import { auth } from '~/config/firebase'
+import type { FirebaseState } from '~/types/Firebase'
 import { z } from 'zod'
 import type { IdTokenResult } from 'firebase/auth';
 definePageMeta({
     layout: false
 })
 const userStore = useUserStore()
-
+const firebase = useState<FirebaseState>('firebase')
 const state = reactive({
     email: '',
     password: ''
@@ -46,9 +47,9 @@ const schema = z.object({
 const login = async () => {
     try {
         await userStore.setUser(state)
-        auth.currentUser?.getIdTokenResult().then((idTokenResult: IdTokenResult) => {
+        firebase.value.auth.currentUser?.getIdTokenResult().then((idTokenResult: IdTokenResult) => {
             userStore.isAdmin = idTokenResult.claims.admin as boolean
-            if (userStore.currentUser && (userStore.isAdmin || auth.currentUser?.email == 'japheth@valiantfc.com')) navigateTo({ path: '/admin' })
+            if (userStore.currentUser && (userStore.isAdmin || firebase.value.auth.currentUser?.email == 'japheth@valiantfc.com')) navigateTo({ path: '/admin' })
         })
 
     } catch (error) {

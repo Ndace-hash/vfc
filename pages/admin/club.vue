@@ -70,7 +70,7 @@
 <script setup lang="ts">
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { getDocs, addDoc, collection, type DocumentData } from 'firebase/firestore'
-import { storage, fireStore } from '~/config/firebase'
+import type { FirebaseState } from '~/types/Firebase'
 import { z } from 'zod'
 definePageMeta({
     layout: 'admin'
@@ -87,8 +87,8 @@ const state = reactive({
 const schema = z.object({
     name: z.string()
 })
-
-const clubColRef = collection(fireStore, 'clubs')
+const firebase = useState<FirebaseState>('firebase')
+const clubColRef = collection(firebase.value.fireStore, 'clubs')
 const clubs = ref<DocumentData[]>([])
 
 onBeforeMount(() => {
@@ -135,7 +135,7 @@ const submit = async () => {
     const fileName = state.name?.trim().toLowerCase().replaceAll(' ', '_')
     if (inputFile.value?.files !== null) {
         try {
-            const clubRef = storageRef(storage, `clubs/${fileName}`)
+            const clubRef = storageRef(firebase.value.storage, `clubs/${fileName}`)
 
             await uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
                 getDownloadURL(snapshot.ref).then((url) => {

@@ -158,12 +158,13 @@
 
 <script setup lang="ts">
 import { DatePicker } from 'v-calendar'
-import { fireStore, storage } from '~/config/firebase'
+// import { fireStore, storage } from '~/config/firebase'
 import { getDocs, addDoc, collection, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { z } from 'zod'
 import type { FormSubmitEvent } from '#ui/types'
 import { timestampToDate } from '~/composables/useTimestamp'
+import { type FirebaseState } from '~/types/Firebase'
 
 definePageMeta({
     layout: 'admin'
@@ -175,6 +176,7 @@ const players = ref<any>([])
 const inputFile = ref<HTMLInputElement | null>()
 const editPlayerModal = ref(false)
 
+const firebase = useState<FirebaseState>('firebase')
 
 const state = reactive({
     firstName: undefined,
@@ -208,7 +210,7 @@ const items = (row: any) => [
         icon: 'i-heroicons-pencil-square-20-solid',
         click: () => {
 
-            players.value.forEach(player => {
+            players.value.forEach((player: any) => {
                 if (row.id == player.id) playerToEdit.value = { ...player, DoB: timestampToDate(player.DoB) }
             })
             editPlayerModal.value = true
@@ -220,8 +222,8 @@ const items = (row: any) => [
         click: () => {
             try {
                 if (confirm(`Are you sure you want to delete ${row.first_name} ${row.last_name}?`)) {
-                    deleteDoc(doc(fireStore, 'players', row.id))
-                    players.value = players.value.filter(player => player.id !== row.id)
+                    deleteDoc(doc(firebase.value.fireStore, 'players', row.id))
+                    players.value = players.value.filter((player: any) => player.id !== row.id)
                 }
 
             } catch (error) {
@@ -252,7 +254,7 @@ const columns = [{
 },
 { key: 'actions' }]
 
-const collectionRef = collection(fireStore, 'players')
+const collectionRef = collection(firebase.value.fireStore, 'players')
 // const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
 const States = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara']
 async function addPlayer(event: FormSubmitEvent<Schema>) {
@@ -271,7 +273,7 @@ async function addPlayer(event: FormSubmitEvent<Schema>) {
         }
         const fileName = `${state.firstName}_${state.lastName}.png`
         if (inputFile.value?.files !== null) {
-            const clubRef = storageRef(storage, `players/${fileName}`)
+            const clubRef = storageRef(firebase.value.storage, `players/${fileName}`)
 
             await uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
                 getDownloadURL(snapshot.ref).then((url) => {
@@ -382,7 +384,7 @@ async function updatePlayerInfo(event: FormSubmitEvent<Schema>) {
         }
         const fileName = `${playerToEdit.value.firstName}_${playerToEdit.value.lastName}.png`
         if (inputFile.value?.files !== null) {
-            const clubRef = storageRef(storage, `players/${fileName}`)
+            const clubRef = storageRef(firebase.value.storage, `players/${fileName}`)
 
             await uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
                 getDownloadURL(snapshot.ref).then((url) => {

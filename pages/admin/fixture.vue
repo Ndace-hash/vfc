@@ -115,7 +115,7 @@
 </template>
 
 <script setup lang="ts">
-import { fireStore } from '~/config/firebase'
+import { type FirebaseState } from '~/types/Firebase'
 import { collection, getDocs, addDoc, doc, setDoc, Timestamp } from 'firebase/firestore'
 import { DatePicker } from 'v-calendar'
 import { z } from 'zod'
@@ -123,6 +123,7 @@ definePageMeta({
     layout: 'admin'
 })
 const valiant = useState('valiant')
+const firebase = useState<FirebaseState>('firebase')
 const isOpen = ref(false)
 const isRefreshing = ref(false)
 const state = reactive({
@@ -172,7 +173,7 @@ const addFixture = () => {
     try {
         console.log(fixture.value);
 
-        addDoc(collection(fireStore, 'fixtures'), fixture.value).then((snapshot) => {
+        addDoc(collection(firebase.value.fireStore, 'fixtures'), fixture.value).then((snapshot) => {
             console.log(snapshot)
         })
     } catch (e) {
@@ -184,14 +185,14 @@ const editModalIsOpen = ref(false)
 const fixtureToEdit = ref()
 
 onBeforeMount(() => {
-    getDocs(collection(fireStore, 'clubs')).then((snapshot) => {
+    getDocs(collection(firebase.value.fireStore, 'clubs')).then((snapshot) => {
         snapshot.docs.forEach(doc => {
             const data = doc.data()
             clubs.value.push({ id: doc.id, name: data.name, logo: data.logo })
         })
     })
 
-    getDocs(collection(fireStore, 'fixtures')).then((snapshot) => {
+    getDocs(collection(firebase.value.fireStore, 'fixtures')).then((snapshot) => {
         snapshot.docs.forEach((doc) => {
             const data = doc.data()
             fixtures.value.push({ id: doc.id, ...data })
@@ -199,7 +200,7 @@ onBeforeMount(() => {
     })
 })
 
-const openEditModal = (id) => {
+const openEditModal = (id: anydey) => {
     editModalIsOpen.value = true
     fixtureToEdit.value = fixtures.value.map((f: any) => ({
         ...f,
@@ -210,7 +211,7 @@ const isLoading = ref(false)
 const updateFixture = (id: string) => {
     isLoading.value = true;
     try {
-        setDoc(doc(fireStore, 'fixtures', id), fixtureToEdit.value).then((snapshot) => {
+        setDoc(doc(firebase.value.fireStore, 'fixtures', id), fixtureToEdit.value).then((snapshot) => {
             console.log(snapshot)
         })
         isLoading.value = false
