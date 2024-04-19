@@ -4,7 +4,7 @@
         <Title>Publish News | Valiant FC</Title>
     </Head>
     <div class="flex items-center justify-center  max-w-[1024px] w-full">
-        <UForm :state="state" class="flex flex-col gap-6" @submit="publish(state, inputFile!)" :schema="schema">
+        <UForm :state="state" class="flex flex-col gap-6" @submit="publish(state)" :schema="schema">
             <UFormGroup class="w-full mx-auto" required size="lg" name="title">
                 <template #label>
                     <p class="inline text-white font-semibold text-xl  me-1">Title</p>
@@ -73,20 +73,9 @@ const inputFile = ref<HTMLInputElement | null>()
 const firebase = useState<FirebaseState>('firebase')
 // const { fireStore, storage } = useFirebaseSetup()
 
-const publish = async (state: { title: string, content: string, bannerUrl: string }, inputFile: HTMLInputElement) => {
-    // try {
-    //     $fetch('/api/publish-article', {
-    //         method: 'post', body: {
-    //             state,
-    //             inputFile: inputFile.files![0]
-    //         }
-    //     })
-
-    // } catch (error) {
-    //     console.log(error)
-    // }
+const publish = async (state: { title: string, content: string, bannerUrl: string }) => {
     const fileName = `${state.title.replaceAll(" ", "_")}.jpg`;
-    if (inputFile.files !== null) {
+    if (inputFile.value!.files !== null) {
         console.log(inputFile);
         const clubRef = storageRef(firebase.value.storage, `news/${fileName}`);
         uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
@@ -104,6 +93,10 @@ const publish = async (state: { title: string, content: string, bannerUrl: strin
                 });
         });
     }
+
+    state.content = ''
+    state.title = ''
+    state.bannerUrl = ''
 
 }
 const imagePreview = ref<HTMLImageElement | null>()
