@@ -26,9 +26,27 @@ export default defineNuxtConfig({
 			title: "Valiant FC",
 		},
 	},
-	modules: ["@nuxt/content", "nuxt-swiper", "@nuxt/ui", "@pinia/nuxt"],
+	modules: [
+		"@nuxt/content",
+		"nuxt-swiper",
+		"@nuxt/ui",
+		"@pinia/nuxt",
+		"nuxt-security",
+	],
 	tailwindcss: {
 		configPath: "./tailwind.config.js",
+	},
+	security: {
+		headers: {
+			contentSecurityPolicy: {
+				"img-src": ["self", "*", "data:", "blob:"],
+			},
+			crossOriginResourcePolicy: "cross-origin",
+			crossOriginEmbedderPolicy: "credentialless",
+		},
+		corsHandler: {
+			origin: "*",
+		},
 	},
 	css: ["v-calendar/style.css"],
 	runtimeConfig: {
