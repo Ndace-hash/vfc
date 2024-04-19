@@ -16,6 +16,9 @@ export const useUserStore = defineStore("user", () => {
 				state.password
 			).then((userCredential) => {
 				currentUser.value = userCredential.user;
+				currentUser.value.getIdTokenResult().then((idTokenResult) => {
+					isAdmin.value = idTokenResult.claims.admin as boolean;
+				});
 			});
 		} catch (e) {
 			console.error(e);
