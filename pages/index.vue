@@ -11,8 +11,11 @@ const firstNews = news.value.filter((_article: Article, i: number) => i >= 3 && 
 const secondNews = news.value.filter((_article: Article, i: number) => i >= 8 && i < 15)
 
 const { data: fixtures } = await useFetch('/api/get-fixtures')
-const futureGames = fixtures.value[0]
-const pastGames = fixtures.value[1]
+let futureGames: any, pastGames: any;
+if (fixtures.value) {
+  futureGames = fixtures.value[0]
+  pastGames = fixtures.value[1]
+}
 
 
 </script>
@@ -21,17 +24,17 @@ const pastGames = fixtures.value[1]
   <section class="w-full mx-auto overflow-hidden max-w-[900px]">
     <Swiper :modules="[SwiperAutoplay, SwiperEffectCreative]" :slides-per-view="1" :speed="4000" :loop="true"
       :effect="'creative'" :autoplay="{
-      delay: 3000,
-      disableOnInteraction: true
-    }" :creative-effect="{
-      prev: {
-        shadow: true,
-        translate: ['-100%', 0, -1],
-      },
-      next: {
-        translate: ['100%', 0, 0],
-      },
-    }">
+        delay: 3000,
+        disableOnInteraction: true
+      }" :creative-effect="{
+        prev: {
+          shadow: true,
+          translate: ['-100%', 0, -1],
+        },
+        next: {
+          translate: ['100%', 0, 0],
+        },
+      }">
       <SwiperSlide v-for="article in Headlines" :key="article.id">
         <CaroselItem :article="article" />
       </SwiperSlide>
@@ -44,8 +47,8 @@ const pastGames = fixtures.value[1]
   </section>
   <section class=" max-w-[900px] mx-auto my-6 flex flex-col items-center">
     <h2 class="uppercase font-bold">Fixtures</h2>
-    <MatchFixture NextOrPrev="Next" :game="futureGames[0]" />
-    <MatchFixture NextOrPrev="Last" :game="pastGames[0]" />
+    <MatchFixture NextOrPrev="Next" :game="futureGames[0]" v-if="futureGames.length > 0" />
+    <MatchFixture NextOrPrev="Last" :game="pastGames[0]" v-if="pastGames.length > 0" />
     <button class="capitalize text-white bg-primary font-bold py-2 px-6 rounded-[8px] mt-4"
       @click="() => $router.push('/fixtures')">view all fixtures</button>
   </section>
