@@ -51,9 +51,9 @@ const firebase = useState<FirebaseState>('firebase', () => {
 
 const q = query(collection(fireStore, 'clubs'), where('name', '==', 'Valiant FC'))
 getDocs(q).then(snapshot => {
-  const doc = snapshot.docs[0]
 
-  valiant.value = { id: doc.id, logo: doc.data().logo, name: doc.data().name }
+  const doc = snapshot.docs[0]
+  if (doc) valiant.value = { id: doc.id, logo: doc.data().logo, name: doc.data().name }
 })
 
 </script>
