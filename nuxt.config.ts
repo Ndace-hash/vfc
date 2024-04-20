@@ -56,6 +56,18 @@ export default defineNuxtConfig({
 		storageBucket: "",
 		messagingSenderId: "",
 		appId: "",
+		adminType: "",
+		adminProjectId: "",
+		adminPrivateKeyId: "",
+		adminPrivateKey: "",
+		adminClientEmail: "",
+		adminClientId: "",
+		adminAuthUrl: "",
+		adminTokenUrl: "",
+		adminAuthProviderCertUrl:
+			process.env.NUXT_ADMIN_AUTH_PROVIDER_X509_CERT_URL,
+		adminClientCertUrl: process.env.NUXT_ADMIN_CLIENT_X509_CERT_URL,
+		adminUniverseDomain: "",
 		public: {
 			apiKey: "",
 			authDomain: "",

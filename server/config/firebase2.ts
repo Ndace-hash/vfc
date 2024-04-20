@@ -28,6 +28,10 @@ export const storage = getStorage(app);
 export const auth = clientAuth(app);
 
 const adminApp = initializeApp({
-	credential: admin.credential.cert(serviceAccount as ServiceAccount),
+	credential: admin.credential.cert({
+		clientEmail: runtimeConfig.adminClientEmail,
+		privateKey: runtimeConfig.adminPrivateKey,
+		projectId: runtimeConfig.adminProjectId,
+	}),
 });
 export const authApp = getAuth(adminApp);
