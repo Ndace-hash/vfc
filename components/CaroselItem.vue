@@ -1,6 +1,7 @@
 <template>
     <div class="relative overflow-hidden mx-auto flex h-[300px] md:h-[350px] max-w-[900px] carosel-wrapper"
-        :style="{ backgroundImage: `url(${article.bannerUrl})` }" @click="viewNews(article.id)">
+        :style="{ backgroundImage: `url(${article.bannerUrl})`, backgroundPosition: 'center', backgroundSize: 'contain', backgroundRepeat: 'no-repeat' }"
+        @click="viewNews(article.id)">
         <div class="absolute inset-0 bg-[#090808] bg-opacity-40"></div>
         <div class="z-40 flex flex-col text-white px-10 justify-end py-4 gap-4 w-full md:w-2/3">
             <h2 class="capitalize font-bold text-xl md:text-3xl drop-shadow-lg">{{ article.title }}</h2>
