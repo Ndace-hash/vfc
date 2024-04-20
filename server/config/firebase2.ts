@@ -6,7 +6,6 @@ import { getAuth as clientAuth } from "firebase/auth";
 import { ServiceAccount, initializeApp } from "firebase-admin/app";
 import { getAuth } from "firebase-admin/auth";
 import admin from "firebase-admin";
-import serviceAccount from "~/valiant-fc-firebase-adminsdk-e6v1j-943d71199a.json";
 
 const runtimeConfig = useRuntimeConfig();
 
