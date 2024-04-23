@@ -25,10 +25,6 @@
 
 
         </section>
-        <section
-            class="absolute inset-0 bg-gradient-to-tr from-[#fffffff6] to-[#ffffff] z-[999] blur-2xl flex items-center justify-center md:hidden">
-            <h1 class="text-xl font-bold">Please vie this page on a larger screen size for better experience.</h1>
-        </section>
         <section class="bg-admin-light min-h-screen w-full overflow-y-auto ms-[300px]">
 
             <slot />
