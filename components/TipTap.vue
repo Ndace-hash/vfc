@@ -62,7 +62,7 @@
 import { uploadBytes, ref as storageRef, getDownloadURL } from 'firebase/storage'
 // import { storage } from '~/config/firebase';
 import { type FirebaseState } from '~/types/Firebase'
-import { useEditor, EditorContent } from '@tiptap/vue-3'
+import { useEditor, EditorContent, type Content } from '@tiptap/vue-3'
 import TiptapStarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link';
 import Image from '@tiptap/extension-image';
@@ -70,7 +70,6 @@ const imageInput = ref<HTMLInputElement | null>(null)
 const props = defineProps({
     modelValue: {
         type: String,
-        default: 'WHat is happening?'
     }
 })
 const emits = defineEmits(['update:modelValue'])
@@ -106,7 +105,7 @@ const editor = useEditor({
 
 });
 onMounted(() => {
-    editor.value?.commands.setContent(props.modelValue)
+    editor.value?.commands.setContent(props.modelValue as Content)
 })
 
 const createLink = () => {
