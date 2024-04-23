@@ -26,7 +26,7 @@ export const fireStore = getFirestore(app);
 export const storage = getStorage(app);
 export const auth = clientAuth(app);
 
-const adminApp = initializeApp({
+const adminApp = admin.initializeApp({
 	credential: admin.credential.cert({
 		clientEmail: runtimeConfig.adminClientEmail,
 		privateKey: runtimeConfig.adminPrivateKey,
