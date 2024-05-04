@@ -23,8 +23,8 @@
                     <UInput placeholder="filter clubs..." v-model="q" />
                 </div>
             </div>
-            <div>
-                <UCard>
+            <div class="h-[500px]">
+                <UCard class="overflow-y-auto h-full">
                     <div v-for="club in filteredClubs" :key="club.id" class="flex items-center">
                         <div class="w-[70px]">
                             <img :src="club.logo" :alt="club.name" class="w-full h-full">

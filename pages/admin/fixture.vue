@@ -7,7 +7,7 @@
         <div>
             <h1 class="text-white capitalize text-2xl max-w-[1024px] mx-auto my-6">Fixtures</h1>
             <div
-                class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-hidden">
+                class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-auto">
                 <div class="flex items-center py-4 px-4 justify-between border-b border-admin-light">
                     <button
                         class="flex bg-primary text-white border-2 border-primary items-center justify-center gap-1   font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
@@ -16,7 +16,7 @@
                         <IconPlus width="30px" color="#ffffff" />
                     </button>
                     <div class="flex gap-2 items-center">
-                        <UButton
+                        <UButton @click="refresh"
                             class="bg-transparent text-admin-dark flex items-center border-2 border-primary hover:text-white"
                             :disabled="isRefreshing">
                             <IconRefresh width="15px"
@@ -176,6 +176,11 @@ const addFixture = () => {
         addDoc(collection(firebase.value.fireStore, 'fixtures'), fixture.value).then((snapshot) => {
             console.log(snapshot)
         })
+        state.venue = ''
+        state.season = ""
+        state.opponent.id = ""
+        state.opponent.logo = ""
+        state.opponent.name = ""
     } catch (e) {
         console.error(e)
     }
@@ -183,6 +188,26 @@ const addFixture = () => {
 
 const editModalIsOpen = ref(false)
 const fixtureToEdit = ref()
+
+const fixtureColRef = collection(firebase.value.fireStore, 'fixtures')
+
+const refresh = () => {
+    isRefreshing.value = true
+    try {
+        clubs.value = []
+        getDocs(fixtureColRef).then(snapshot => {
+            snapshot.docs.forEach(doc => {
+                const data = doc.data()
+                clubs.value.push({ id: doc.id, ...data })
+            })
+        })
+        isRefreshing.value = false
+    } catch (e) {
+        isRefreshing.value = false
+        console.log(e)
+    }
+}
+
 
 onBeforeMount(() => {
     getDocs(collection(firebase.value.fireStore, 'clubs')).then((snapshot) => {
