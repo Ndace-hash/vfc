@@ -18,9 +18,7 @@
                     <div class="flex gap-2 items-center">
                         <UButton @click="refresh"
                             class="bg-transparent text-admin-dark flex items-center border-2 border-primary hover:text-white"
-                            :disabled="isRefreshing">
-                            <IconRefresh width="15px"
-                                :class="isRefreshing ? 'duration-1000 ease-linear animate-spin' : ''" />
+                            :loading="isRefreshing">
                             Refresh
                         </UButton>
                     </div>
@@ -116,7 +114,7 @@
 
 <script setup lang="ts">
 import { type FirebaseState } from '~/types/Firebase'
-import { collection, getDocs, addDoc, doc, setDoc, Timestamp } from 'firebase/firestore'
+import { collection, getDocs, addDoc, doc, setDoc, Timestamp, orderBy, query } from 'firebase/firestore'
 import { DatePicker } from 'v-calendar'
 import { z } from 'zod'
 definePageMeta({
@@ -192,16 +190,19 @@ const fixtureToEdit = ref()
 const fixtureColRef = collection(firebase.value.fireStore, 'fixtures')
 
 const refresh = () => {
-    isRefreshing.value = true
     try {
+        isRefreshing.value = true
+        fixtures.value = []
         clubs.value = []
-        getDocs(fixtureColRef).then(snapshot => {
-            snapshot.docs.forEach(doc => {
+        const fixtureQuery = query(fixtureColRef, orderBy("date", "desc"))
+
+        getDocs(fixtureQuery).then((snapshot) => {
+            snapshot.docs.forEach((doc) => {
                 const data = doc.data()
-                clubs.value.push({ id: doc.id, ...data })
+                fixtures.value.push({ id: doc.id, ...data })
             })
+            isRefreshing.value = false
         })
-        isRefreshing.value = false
     } catch (e) {
         isRefreshing.value = false
         console.log(e)
@@ -216,8 +217,9 @@ onBeforeMount(() => {
             clubs.value.push({ id: doc.id, name: data.name, logo: data.logo })
         })
     })
+    const fixtureQuery = query(fixtureColRef, orderBy("date", "desc"))
 
-    getDocs(collection(firebase.value.fireStore, 'fixtures')).then((snapshot) => {
+    getDocs(fixtureQuery).then((snapshot) => {
         snapshot.docs.forEach((doc) => {
             const data = doc.data()
             fixtures.value.push({ id: doc.id, ...data })
