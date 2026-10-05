@@ -17,29 +17,38 @@ if (fixtures.value) {
   pastGames = fixtures.value[1]
 }
 
+const headlineSwiper = ref(null)
+useSwiper(headlineSwiper, {
+  slidesPerView: 1,
+  speed: 4000,
+  loop: true,
+  effect: 'creative',
+  autoplay: {
+    delay: 3000,
+    disableOnInteraction: true
+  },
+  creativeEffect: {
+    prev: {
+      shadow: true,
+      translate: ['-100%', 0, -1],
+    },
+    next: {
+      translate: ['100%', 0, 0],
+    },
+  },
+})
+
 
 </script>
 
 <template>
   <section class="w-full mx-auto overflow-hidden max-w-[900px]">
-    <Swiper :modules="[SwiperAutoplay, SwiperEffectCreative]" :slides-per-view="1" :speed="4000" :loop="true"
-      :effect="'creative'" :autoplay="{
-        delay: 3000,
-        disableOnInteraction: true
-      }" :creative-effect="{
-        prev: {
-          shadow: true,
-          translate: ['-100%', 0, -1],
-        },
-        next: {
-          translate: ['100%', 0, 0],
-        },
-      }">
-      <SwiperSlide v-for="article in Headlines" :key="article.id">
+    <swiper-container ref="headlineSwiper" :init="false">
+      <swiper-slide v-for="article in Headlines" :key="article.id">
         <CaroselItem :article="article" />
-      </SwiperSlide>
+      </swiper-slide>
 
-    </Swiper>
+    </swiper-container>
 
   </section>
   <section class=" max-w-[900px] mx-auto my-6">

@@ -17,7 +17,7 @@
                 <RouterLink to="/admin/club" class="font-bold capitalize">Clubs </RouterLink>
                 <RouterLink to="/admin/fixture" class="font-bold capitalize">Fixtures</RouterLink>
                 <UButton @click="openModal = true" class="font-bold capitalize">Create Admin</UButton>
-                <UButton label="sign out" class="self-start" variant="outline" color="white" @click="() => {
+                <UButton label="sign out" class="self-start" variant="outline" color="neutral" @click="() => {
                     firebase.auth.signOut()
                     navigateTo('/admin/login')
                 }" />
@@ -29,35 +29,30 @@
 
             <slot />
         </section>
-        <UModal v-model="openModal">
-            <UCard>
-                <template #header>
-                    <h2 class="text-primary font-bold text-xl capitalize">Add a new admin</h2>
-                </template>
-                <template #default>
-                    <UForm :state="state" :schema="schema" class="flex flex-col gap-2" @submit="createUser">
-                        <UFormGroup label="First Name" required name="firstName">
-                            <UInput placeholder="First name" v-model="state.firstName" />
-                        </UFormGroup>
-                        <UFormGroup label="Last Name" required name="lastName">
-                            <UInput placeholder="Last name" v-model="state.lastName" />
-                        </UFormGroup>
-                        <UFormGroup label="Phone Number" required name="phone">
-                            <UInput placeholder="Phone number" v-model="state.phone" />
-                        </UFormGroup>
-                        <UFormGroup label="Email" required name="email">
-                            <UInput placeholder="email" type="email" v-model="state.email" />
-                        </UFormGroup>
-                        <UFormGroup label="Password" required name="password">
-                            <UInput placeholder="password" type="password" v-model="state.password" />
-                        </UFormGroup>
-                        <UFormGroup class="mt-2">
-                            <UButton type="submit" label="Submit" />
-                        </UFormGroup>
-                    </UForm>
-
-                </template>
-            </UCard>
+        <UModal v-model:open="openModal" title="Add a new admin"
+            :ui="{ title: 'text-primary font-bold text-xl capitalize' }">
+            <template #body>
+                <UForm :state="state" :schema="schema" class="flex flex-col gap-2" @submit="createUser">
+                    <UFormField label="First Name" required name="firstName">
+                        <UInput placeholder="First name" v-model="state.firstName" />
+                    </UFormField>
+                    <UFormField label="Last Name" required name="lastName">
+                        <UInput placeholder="Last name" v-model="state.lastName" />
+                    </UFormField>
+                    <UFormField label="Phone Number" required name="phone">
+                        <UInput placeholder="Phone number" v-model="state.phone" />
+                    </UFormField>
+                    <UFormField label="Email" required name="email">
+                        <UInput placeholder="email" type="email" v-model="state.email" />
+                    </UFormField>
+                    <UFormField label="Password" required name="password">
+                        <UInput placeholder="password" type="password" v-model="state.password" />
+                    </UFormField>
+                    <UFormField class="mt-2">
+                        <UButton type="submit" label="Submit" />
+                    </UFormField>
+                </UForm>
+            </template>
         </UModal>
     </main>
 </template>

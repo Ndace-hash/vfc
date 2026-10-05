@@ -8,7 +8,7 @@
         <div class="flex items-center gap-2 border px-2 py-1 bg-admin-light text-white" v-if="game.played">
             <span class="text-3xl font-bold">{{ game.goals.home }}</span>
             <span class="flex w-min">
-                <UIcon name="i-mdi-minus-thick" dynamic />
+                <UIcon name="i-mdi-minus-thick" />
             </span>
             <span class="text-3xl font-bold">{{ game.goals.away }}</span>
         </div>

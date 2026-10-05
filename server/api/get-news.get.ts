@@ -1,7 +1,8 @@
 import { getDocs, collection, limit, orderBy, query } from "firebase/firestore";
-import { fireStore } from "../config/firebase2";
+import { useFirebase } from "../config/firebase2";
 
 export default defineEventHandler(async () => {
+	const { fireStore } = useFirebase();
 	try {
 		const q = query(
 			collection(fireStore, "news"),

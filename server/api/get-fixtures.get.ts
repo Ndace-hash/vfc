@@ -1,4 +1,4 @@
-import { fireStore } from "../config/firebase2";
+import { useFirebase } from "../config/firebase2";
 import {
 	getDocs,
 	collection,
@@ -9,6 +9,7 @@ import {
 	limit,
 } from "firebase/firestore";
 export default defineEventHandler(async () => {
+	const { fireStore } = useFirebase();
 	const q1 = query(
 		collection(fireStore, "fixtures"),
 		where("date", ">=", Timestamp.now()),

@@ -1,7 +1,8 @@
 import { getDoc, doc } from "firebase/firestore";
-import { fireStore } from "../../config/firebase2";
+import { useFirebase } from "../../config/firebase2";
 
 export default defineEventHandler(async (event) => {
+	const { fireStore } = useFirebase();
 	const id = getRouterParam(event, "id");
 	try {
 		const docRef = doc(fireStore, "news", id as string);

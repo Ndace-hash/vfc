@@ -29,85 +29,72 @@
 
         </div>
 
-        <UModal v-model="isOpen">
-            <UCard>
-                <template #header>
-                    <h1 class="text-primary text-2xl font-bold">Fixtures</h1>
-                </template>
-                <template #default>
-                    <UForm :state="state" @submit="addFixture" :schema="schema">
-                        <UFormGroup label="Venue" class="mb-4" name="venue">
-                            <div class="flex gap-6 my-2">
-                                <URadio v-for="option in options" :key="option.value" v-model="state.venue"
-                                    v-bind="option" />
-
-                            </div>
-                        </UFormGroup>
-                        <UFormGroup label="Oponent" class="mb-4" name="opponent">
-                            <UInputMenu :options="clubs" by="name" option-attribute="name" v-model="state.opponent">
-                                <template #option="{ option: club }">
-                                    <div class="flex items-center gap-4">
-                                        <div class="w-16">
-                                            <img :src="club.logo" :alt="club.name" class="w-full h-full">
-                                        </div>
-                                        <span>{{ club.name }}</span>
-                                    </div>
-
-                                </template>
-                            </UInputMenu>
-                        </UFormGroup>
-                        <UFormGroup label="Season" class="mb-4" name="season">
-                            <UInput placeholder="Ex. 2023/2024" v-model="state.season" />
-                        </UFormGroup>
-                        <UFormGroup label="Match Day" class="mb-4 flex items-center flex-col" name="date">
-                            <DatePicker mode="dateTime" v-model="state.date" />
-                        </UFormGroup>
-                        <UFormGroup class="flex justify-end">
-                            <UButton label="Add" type="submit" class="px-8" size="lg" />
-                        </UFormGroup>
-                    </UForm>
-                </template>
-            </UCard>
-        </UModal>
-        <UModal v-model="editModalIsOpen">
-            <UCard>
-                <template #header>
-                    <h1 class="text-primary text-2xl font-bold">Fixtures</h1>
-                </template>
-                <template #default>
-                    <div class="flex flex-col items-center">
-                        <div class="flex items-center gap-3">
-                            <div class="w-[100px]">
-                                <img :src="fixtureToEdit.home.logo" :alt="fixtureToEdit.home.name"
-                                    class="w-full h-full">
-                            </div>
-                            <span class="font-bold text-lg">VS</span>
-                            <div class="w-[100px]">
-                                <img :src="fixtureToEdit.away.logo" :alt="fixtureToEdit.away.name"
-                                    class="w-full h-full">
-                            </div>
-                        </div>
-                        <UForm :state="fixtureToEdit" @submit="updateFixture(fixtureToEdit.id)">
-                            <UCheckbox label="Match Played" class="mb-4" v-model="fixtureToEdit.played" />
-                            <UFormGroup label="Scores" class="mb-6 flex flex-col items-center">
+        <UModal v-model:open="isOpen" title="Fixtures" :ui="{ title: 'text-primary text-2xl font-bold' }">
+            <template #body>
+                <UForm :state="state" @submit="addFixture" :schema="schema">
+                    <UFormField label="Venue" class="mb-4" name="venue">
+                        <URadioGroup v-model="state.venue" :items="options" orientation="horizontal"
+                            class="my-2" :ui="{ fieldset: 'gap-x-6' }" />
+                    </UFormField>
+                    <UFormField label="Oponent" class="mb-4" name="opponent">
+                        <UInputMenu :items="clubs" by="name" label-key="name" v-model="state.opponent">
+                            <template #item="{ item: club }">
                                 <div class="flex items-center gap-4">
-                                    <UInput v-model="fixtureToEdit.goals.home" class="w-10 font-bold text-2xl"
-                                        size="sm" />
-                                    <span class="text-xl font-bold">--</span>
-                                    <UInput v-model="fixtureToEdit.goals.away" class="w-10 font-bold text-2xl"
-                                        size="sm" />
+                                    <div class="w-16">
+                                        <img :src="club.logo" :alt="club.name" class="w-full h-full">
+                                    </div>
+                                    <span>{{ club.name }}</span>
                                 </div>
-                            </UFormGroup>
-                            <UFormGroup label="Match day" class="mb-4">
-                                <DatePicker v-model="fixtureToEdit.date" mode="dateTime" />
-                            </UFormGroup>
-                            <UFormGroup class="flex justify-end">
-                                <UButton label="Update" type="submit" class="px-8" size="lg" />
-                            </UFormGroup>
-                        </UForm>
+
+                            </template>
+                        </UInputMenu>
+                    </UFormField>
+                    <UFormField label="Season" class="mb-4" name="season">
+                        <UInput placeholder="Ex. 2023/2024" v-model="state.season" />
+                    </UFormField>
+                    <UFormField label="Match Day" class="mb-4 flex items-center flex-col" name="date">
+                        <DatePicker mode="dateTime" v-model="state.date" />
+                    </UFormField>
+                    <UFormField class="flex justify-end">
+                        <UButton label="Add" type="submit" class="px-8" size="lg" />
+                    </UFormField>
+                </UForm>
+            </template>
+        </UModal>
+        <UModal v-model:open="editModalIsOpen" title="Fixtures" :ui="{ title: 'text-primary text-2xl font-bold' }">
+            <template #body>
+                <div class="flex flex-col items-center">
+                    <div class="flex items-center gap-3">
+                        <div class="w-[100px]">
+                            <img :src="fixtureToEdit.home.logo" :alt="fixtureToEdit.home.name"
+                                class="w-full h-full">
+                        </div>
+                        <span class="font-bold text-lg">VS</span>
+                        <div class="w-[100px]">
+                            <img :src="fixtureToEdit.away.logo" :alt="fixtureToEdit.away.name"
+                                class="w-full h-full">
+                        </div>
                     </div>
-                </template>
-            </UCard>
+                    <UForm :state="fixtureToEdit" @submit="updateFixture(fixtureToEdit.id)">
+                        <UCheckbox label="Match Played" class="mb-4" v-model="fixtureToEdit.played" />
+                        <UFormField label="Scores" class="mb-6 flex flex-col items-center">
+                            <div class="flex items-center gap-4">
+                                <UInput v-model="fixtureToEdit.goals.home" class="w-10 font-bold text-2xl"
+                                    size="sm" />
+                                <span class="text-xl font-bold">--</span>
+                                <UInput v-model="fixtureToEdit.goals.away" class="w-10 font-bold text-2xl"
+                                    size="sm" />
+                            </div>
+                        </UFormField>
+                        <UFormField label="Match day" class="mb-4">
+                            <DatePicker v-model="fixtureToEdit.date" mode="dateTime" />
+                        </UFormField>
+                        <UFormField class="flex justify-end">
+                            <UButton label="Update" type="submit" class="px-8" size="lg" />
+                        </UFormField>
+                    </UForm>
+                </div>
+            </template>
         </UModal>
     </section>
 </template>

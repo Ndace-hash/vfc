@@ -1,5 +1,5 @@
 <template>
-    <article class="w-[250px] h-[350px] relative  rounded-[8px] shadow-xl overflow-hidden mx-2 my-4 flex-shrink-0">
+    <article class="w-[250px] h-[350px] relative  rounded-[8px] shadow-xl overflow-hidden mx-2 my-4 shrink-0">
         <div class="v-logo-bg absolute inset-0 -z-10">
         </div>
         <span class="absolute -z-10 -right-2 -top-2 text-7xl opacity-50 text-primary">{{ playerData.number }}

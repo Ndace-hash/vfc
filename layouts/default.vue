@@ -57,9 +57,10 @@
 </template>
 
 
-<style lang="scss">
+<style>
+@reference "~/assets/css/tailwind.css";
+
 .app {
     @apply max-w-[2680px] w-full mx-auto overflow-hidden;
-
 }
 </style>

@@ -24,133 +24,127 @@
                 </div>
             </div>
             <div class="h-[500px] overflow-y-scroll">
-                <UTable v-model="selected" :rows="filteredRows" :columns="columns"
-                    :empty-state="{ icon: 'i-heroicons-circle-stack-20-solid', label: 'No players.' }">
-                    <template #actions-data="{ row }">
-                        <UDropdown :items="items(row)">
-                            <UButton color="gray" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
-                        </UDropdown>
+                <UTable :data="filteredRows" :columns="columns">
+                    <template #actions-cell="{ row }">
+                        <UDropdownMenu :items="items(row.original)">
+                            <UButton color="neutral" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
+                        </UDropdownMenu>
+                    </template>
+                    <template #empty>
+                        <div class="flex flex-col items-center gap-2 py-6">
+                            <UIcon name="i-heroicons-circle-stack-20-solid" class="text-2xl" />
+                            <span>No players.</span>
+                        </div>
                     </template>
                 </UTable>
 
-                <UModal v-model="editPlayerModal">
-                    <UCard>
-                        <template #header>
-                            <h2 class="text-primary font-bold text-xl mb-2">Edit a player</h2>
-                            <p class="text-sm text-admin-dark">Fill out the form to edit player information.</p>
-                        </template>
-                        <template #default>
+                <UModal v-model:open="editPlayerModal" title="Edit a player"
+                    description="Fill out the form to edit player information."
+                    :ui="{ title: 'text-primary font-bold text-xl mb-2', description: 'text-sm text-admin-dark' }">
+                    <template #body>
+                        <UForm :state="playerToEdit" @submit="updatePlayerInfo" :schema="schema">
+                            <div class="w-[150px] mb-4">
+                                <img ref="imagePreview" class="w-full h-full" :src="playerToEdit.photoURL" />
+                            </div>
 
-                            <UForm :state="playerToEdit" @submit="updatePlayerInfo" :schema="schema">
-                                <div class="w-[150px] mb-4">
-                                    <img ref="imagePreview" class="w-full h-full" :src="playerToEdit.photoURL" />
-                                </div>
+                            <UFormField label="Player Image " class="mb-4" required>
 
-                                <UFormGroup label="Player Image " class="mb-4" required>
+                                <label for="club"
+                                    class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
+                                    <UIcon name="i-ant-design-upload-outlined" />
+                                    Player Photo
+                                </label>
+                                <input type="file" id="club" ref="inputFile" class="opacity-0"
+                                    accept=".jpg, .png, .jpeg" @change="previewFile" />
+                            </UFormField>
 
-                                    <label for="club"
-                                        class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
-                                        <UIcon name="i-ant-design-upload-outlined" dynamic />
-                                        Player Photo
-                                    </label>
-                                    <input type="file" id="club" ref="inputFile" class="opacity-0"
-                                        accept=".jpg, .png, .jpeg" @change="previewFile" />
-                                </UFormGroup>
+                            <div class="flex items-center gap-4 mb-3">
 
-                                <div class="flex items-center gap-4 mb-3">
+                                <UFormField label="First Name" class="w-1/2" name="firstName" required>
+                                    <UInput v-model="playerToEdit.firstName" />
+                                </UFormField>
+                                <UFormField label="Last Name" class="w-1/2" name="lastName" required>
+                                    <UInput v-model="playerToEdit.lastName" />
+                                </UFormField>
+                            </div>
+                            <div class="flex items-center gap-4 mb-3">
 
-                                    <UFormGroup label="First Name" class="w-1/2" name="firstName" required>
-                                        <UInput v-model="playerToEdit.firstName" />
-                                    </UFormGroup>
-                                    <UFormGroup label="Last Name" class="w-1/2" name="lastName" required>
-                                        <UInput v-model="playerToEdit.lastName" />
-                                    </UFormGroup>
-                                </div>
-                                <div class="flex items-center gap-4 mb-3">
+                                <UFormField label="Position" name="position" required>
+                                    <USelect v-model="playerToEdit.position"
+                                        :items="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
+                                </UFormField>
+                                <UFormField label="Jersey Number" name="number" required>
+                                    <UInput v-model="playerToEdit.number" />
+                                </UFormField>
+                                <UFormField label="Gender" name="gender" required>
+                                    <USelect v-model="playerToEdit.gender" :items="['Male', 'Female']" />
+                                </UFormField>
+                            </div>
+                            <UFormField label="Date Of Birth" class="mb-3" name="DoB" required>
+                                <DatePicker v-model="playerToEdit.DoB" mode="date" />
+                            </UFormField>
+                            <UFormField label="State of Origin" name="stateOforigin" required>
+                                <UInputMenu v-model="playerToEdit.stateOfOrigin" :items="States" />
+                            </UFormField>
 
-                                    <UFormGroup label="Position" name="position" required>
-                                        <USelect v-model="playerToEdit.position"
-                                            :options="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
-                                    </UFormGroup>
-                                    <UFormGroup label="Jersey Number" name="number" required>
-                                        <UInput v-model="playerToEdit.number" />
-                                    </UFormGroup>
-                                    <UFormGroup label="Gender" name="gender" required>
-                                        <USelect v-model="playerToEdit.gender" :options="['Male', 'Female']" />
-                                    </UFormGroup>
-                                </div>
-                                <UFormGroup label="Date Of Birth" class="mb-3" name="DoB" required>
-                                    <DatePicker v-model="playerToEdit.DoB" mode="date" />
-                                </UFormGroup>
-                                <UFormGroup label="State of Origin" name="stateOforigin" required>
-                                    <UInputMenu v-model="playerToEdit.stateOfOrigin" :options="States" />
-                                </UFormGroup>
-
-                                <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Edit</UButton>
-                            </UForm>
-                        </template>
-                    </UCard>
+                            <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Edit</UButton>
+                        </UForm>
+                    </template>
                 </UModal>
             </div>
         </div>
-        <UModal v-model="isOpen">
-            <UCard>
-                <template #header>
-                    <h2 class="text-primary font-bold text-xl mb-2">Add a new player</h2>
-                    <p class="text-sm text-admin-dark">Fill out the form to add a new player</p>
-                </template>
-                <template #default>
+        <UModal v-model:open="isOpen" title="Add a new player" description="Fill out the form to add a new player"
+            :ui="{ title: 'text-primary font-bold text-xl mb-2', description: 'text-sm text-admin-dark' }">
+            <template #body>
+                <UForm :state="state" :schema="schema" @submit="addPlayer">
+                    <div class="w-[150px] mb-4" v-show="!hidePreview">
+                        <img ref="imagePreview" class="w-full h-full" />
+                    </div>
 
-                    <UForm :state="state" :schema="schema" @submit="addPlayer">
-                        <div class="w-[150px] mb-4" v-show="!hidePreview">
-                            <img ref="imagePreview" class="w-full h-full" />
-                        </div>
+                    <UFormField label="Player Image " class="mb-4" required>
 
-                        <UFormGroup label="Player Image " class="mb-4" required>
+                        <label for="club"
+                            class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
+                            <UIcon name="i-ant-design-upload-outlined" />
+                            Player Photo
+                        </label>
+                        <input type="file" id="club" ref="inputFile" class="opacity-0" accept=".jpg, .png, .jpeg"
+                            @change="previewFile" required />
+                    </UFormField>
 
-                            <label for="club"
-                                class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
-                                <UIcon name="i-ant-design-upload-outlined" dynamic />
-                                Player Photo
-                            </label>
-                            <input type="file" id="club" ref="inputFile" class="opacity-0" accept=".jpg, .png, .jpeg"
-                                @change="previewFile" required />
-                        </UFormGroup>
+                    <div class="flex items-center gap-4 mb-3">
 
-                        <div class="flex items-center gap-4 mb-3">
+                        <UFormField label="First Name" class="w-1/2" name="firstName" required>
+                            <UInput v-model="state.firstName" />
+                        </UFormField>
+                        <UFormField label="Last Name" class="w-1/2" name="lastName" required>
+                            <UInput v-model="state.lastName" />
+                        </UFormField>
+                    </div>
+                    <div class="flex items-center gap-4 mb-3">
 
-                            <UFormGroup label="First Name" class="w-1/2" name="firstName" required>
-                                <UInput v-model="state.firstName" />
-                            </UFormGroup>
-                            <UFormGroup label="Last Name" class="w-1/2" name="lastName" required>
-                                <UInput v-model="state.lastName" />
-                            </UFormGroup>
-                        </div>
-                        <div class="flex items-center gap-4 mb-3">
+                        <UFormField label="Position" name="position" required>
+                            <USelect v-model="state.position"
+                                :items="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
+                        </UFormField>
+                        <UFormField label="Jersey Number" name="number" required>
+                            <UInput v-model="state.number" />
+                        </UFormField>
+                        <UFormField label="Gender" name="gender" required>
+                            <USelect v-model="state.gender" :items="['Male', 'Female']" />
+                        </UFormField>
+                    </div>
+                    <UFormField label="Date Of Birth" class="mb-3" name="DoB" required>
+                        <DatePicker v-model="state.DoB" mode="date" />
+                    </UFormField>
+                    <UFormField label="State of Origin" name="state" required>
+                        <UInputMenu v-model="state.stateOfOrigin" :items="States" />
+                    </UFormField>
 
-                            <UFormGroup label="Position" name="position" required>
-                                <USelect v-model="state.position"
-                                    :options="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
-                            </UFormGroup>
-                            <UFormGroup label="Jersey Number" name="number" required>
-                                <UInput v-model="state.number" />
-                            </UFormGroup>
-                            <UFormGroup label="Gender" name="gender" required>
-                                <USelect v-model="state.gender" :options="['Male', 'Female']" />
-                            </UFormGroup>
-                        </div>
-                        <UFormGroup label="Date Of Birth" class="mb-3" name="DoB" required>
-                            <DatePicker v-model="state.DoB" mode="date" />
-                        </UFormGroup>
-                        <UFormGroup label="State of Origin" name="state" required>
-                            <UInputMenu v-model="state.stateOfOrigin" :options="States" />
-                        </UFormGroup>
-
-                        <UButton type="submit" :loading="isLoading" size="sm" class="mt-6 px-6" color="primary">Add
-                        </UButton>
-                    </UForm>
-                </template>
-            </UCard>
+                    <UButton type="submit" :loading="isLoading" size="sm" class="mt-6 px-6" color="primary">Add
+                    </UButton>
+                </UForm>
+            </template>
         </UModal>
 
     </section>
@@ -162,7 +156,7 @@ import { DatePicker } from 'v-calendar'
 import { getDocs, addDoc, collection, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore'
 import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { z } from 'zod'
-import type { FormSubmitEvent } from '#ui/types'
+import type { FormSubmitEvent } from '@nuxt/ui'
 import { timestampToDate } from '~/composables/useTimestamp'
 import { type FirebaseState } from '~/types/Firebase'
 
@@ -171,7 +165,6 @@ definePageMeta({
 })
 const isLoading = ref(false)
 const isOpen = ref(false)
-const selected = ref([])
 const players = ref<any>([])
 const inputFile = ref<HTMLInputElement | null>()
 const editPlayerModal = ref(false)
@@ -208,7 +201,7 @@ const items = (row: any) => [
     [{
         label: 'Edit',
         icon: 'i-heroicons-pencil-square-20-solid',
-        click: () => {
+        onSelect: () => {
 
             players.value.forEach((player: any) => {
                 if (row.id == player.id) playerToEdit.value = { ...player, DoB: timestampToDate(player.DoB) }
@@ -219,7 +212,7 @@ const items = (row: any) => [
     }, {
         label: 'Delete',
         icon: 'i-heroicons-trash-20-solid',
-        click: () => {
+        onSelect: () => {
             try {
                 if (confirm(`Are you sure you want to delete ${row.first_name} ${row.last_name}?`)) {
                     deleteDoc(doc(firebase.value.fireStore, 'players', row.id))
@@ -235,24 +228,24 @@ const items = (row: any) => [
 ]
 
 const columns = [{
-    key: 'firstName',
-    label: 'First Name'
+    accessorKey: 'firstName',
+    header: 'First Name'
 }, {
-    key: 'lastName',
-    label: 'Last Name'
+    accessorKey: 'lastName',
+    header: 'Last Name'
 },
 {
-    key: 'position',
-    label: 'Position'
+    accessorKey: 'position',
+    header: 'Position'
 }, {
-    key: 'number',
-    label: 'Jersey'
+    accessorKey: 'number',
+    header: 'Jersey'
 },
 {
-    key: 'gender',
-    label: 'Gender'
+    accessorKey: 'gender',
+    header: 'Gender'
 },
-{ key: 'actions' }]
+{ id: 'actions' }]
 
 const collectionRef = collection(firebase.value.fireStore, 'players')
 // const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']

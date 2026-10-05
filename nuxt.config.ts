@@ -1,5 +1,7 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
+	compatibilityDate: "2026-10-05",
+
 	devtools: {
 		enabled: true,
 
@@ -27,19 +29,35 @@ export default defineNuxtConfig({
 		},
 	},
 	modules: [
+		"@nuxt/ui",
 		"@nuxt/content",
 		"nuxt-swiper",
-		"@nuxt/ui",
 		"@pinia/nuxt",
 		"nuxt-security",
 	],
-	tailwindcss: {
-		configPath: "./tailwind.config.js",
+	ui: {
+		// fonts are loaded from the Google Fonts link above
+		fonts: false,
+	},
+	content: {
+		experimental: {
+			sqliteConnector: "native",
+		},
 	},
 	security: {
 		headers: {
 			contentSecurityPolicy: {
 				"img-src": ["self", "*", "data:", "blob:"],
+				// nuxt-security defaults plus 'wasm-unsafe-eval', which
+				// @nuxt/content needs to run its SQLite database in the browser
+				"script-src": [
+					"'self'",
+					"https:",
+					"'unsafe-inline'",
+					"'strict-dynamic'",
+					"'nonce-{{nonce}}'",
+					"'wasm-unsafe-eval'",
+				],
 			},
 			crossOriginResourcePolicy: "cross-origin",
 			crossOriginEmbedderPolicy: "credentialless",
@@ -48,14 +66,15 @@ export default defineNuxtConfig({
 			origin: "*",
 		},
 	},
-	css: ["v-calendar/style.css"],
+	css: ["~/assets/css/tailwind.css", "v-calendar/style.css"],
 	runtimeConfig: {
-		apiKey: "",
-		authDomain: "",
-		projectId: "",
-		storageBucket: "",
-		messagingSenderId: "",
-		appId: "",
+		apiKey: "AIzaSyCiKk72rfOWD3gvbFKjGYdbb0uCs4NwW80",
+		authDomain: "valiant-fc-dev.firebaseapp.com",
+		projectId: "valiant-fc-dev",
+		storageBucket: "valiant-fc-dev.appspot.com",
+		messagingSenderId: "641701082658",
+		appId: "1:641701082658:web:64bd0879e02acc99c6fc7b",
+		// service account secrets: filled at runtime from the NUXT_ADMIN_* variables in .env
 		adminType: "",
 		adminProjectId: "",
 		adminPrivateKeyId: "",
@@ -69,12 +88,12 @@ export default defineNuxtConfig({
 		adminClientCertUrl: process.env.NUXT_ADMIN_CLIENT_X509_CERT_URL,
 		adminUniverseDomain: "",
 		public: {
-			apiKey: "",
-			authDomain: "",
-			projectId: "",
-			storageBucket: "",
-			messagingSenderId: "",
-			appId: "",
+			apiKey: "AIzaSyCiKk72rfOWD3gvbFKjGYdbb0uCs4NwW80",
+  authDomain: "valiant-fc-dev.firebaseapp.com",
+  projectId: "valiant-fc-dev",
+  storageBucket: "valiant-fc-dev.appspot.com",
+  messagingSenderId: "641701082658",
+  appId: "1:641701082658:web:64bd0879e02acc99c6fc7b"
 		},
 	},
 	imports: {

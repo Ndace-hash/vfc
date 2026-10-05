@@ -7,17 +7,17 @@
             <template #default>
                 <UForm :state="state" class="flex flex-col gap-8" :schema="schema" @submit="login">
 
-                    <UFormGroup label="Email" class="w-3/4" name="email">
+                    <UFormField label="Email" class="w-3/4" name="email">
                         <UInput v-model="state.email" />
-                    </UFormGroup>
-                    <UFormGroup label="Password" class="w-3/4" name="password">
+                    </UFormField>
+                    <UFormField label="Password" class="w-3/4" name="password">
                         <UInput type="password" v-model="state.password" />
                         <RouterLink to="/admin/reset-password" class="underline text-primary py-4">Forgot your password?
                         </RouterLink>
-                    </UFormGroup>
-                    <UFormGroup>
+                    </UFormField>
+                    <UFormField>
                         <UButton label="Login" type="submit" />
-                    </UFormGroup>
+                    </UFormField>
                 </UForm>
             </template>
         </UCard>

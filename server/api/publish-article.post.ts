@@ -1,4 +1,3 @@
-import { fireStore, storage } from "../config/firebase2";
 import {
 	ref as storageRef,
 	uploadBytes,

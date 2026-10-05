@@ -2,12 +2,12 @@
     <div class="max-w-[500px] mx-auto py-6 flex flex-col gap-4">
         <h1 class="text-primary font-bold uppercase">Reset password</h1>
         <UForm :state="state" @submit="resetPassword" :schema="schema" class="flex flex-col gap-4">
-            <UFormGroup name="email">
+            <UFormField name="email">
                 <template #label>
                     <p class="text-xs mb-2">Please enter your Admin Email address.</p>
                 </template>
                 <UInput type="email" v-model="state.email" />
-            </UFormGroup>
+            </UFormField>
 
 
 

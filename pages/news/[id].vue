@@ -15,14 +15,16 @@ const route = useRoute()
 const { data } = useFetch<{ title: string, content: string, id: string }>(`/api/get-article/${route.params.id}`)
 </script>
 
-<style lang="scss">
+<style>
+@reference "~/assets/css/tailwind.css";
+
 #article-content {
     p {
         @apply my-2 leading-loose text-base;
     }
 
     a {
-        @apply underline text-primary
+        @apply underline text-primary;
     }
 
     img {
@@ -34,7 +36,7 @@ const { data } = useFetch<{ title: string, content: string, id: string }>(`/api/
     }
 
     h2 {
-        @apply text-xl
+        @apply text-xl;
     }
 
     li {

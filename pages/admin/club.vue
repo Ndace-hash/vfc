@@ -37,32 +37,29 @@
                 </UCard>
             </div>
         </div>
-        <UModal v-model="isOpen">
-            <UCard>
-                <template #header>
-                    <h1 class="text-primary font-semibold text-xl capitalize">Add new club</h1>
-                </template>
-
+        <UModal v-model:open="isOpen" title="Add new club"
+            :ui="{ title: 'text-primary font-semibold text-xl capitalize' }">
+            <template #body>
                 <UForm :state="state" @submit="submit" :schema="schema">
-                    <UFormGroup label="Club logo " class="mb-4">
+                    <UFormField label="Club logo " class="mb-4">
 
                         <label for="club"
                             class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
-                            <UIcon name="i-ant-design-upload-outlined" dynamic />
+                            <UIcon name="i-ant-design-upload-outlined" />
                             Upload
                         </label>
                         <input type="file" id="club" ref="inputFile" class="hidden" accept=".jpg, .png, .jpeg"
                             @change="uploadFile" required />
-                    </UFormGroup>
-                    <UFormGroup label="Club name" class="mb-4" name="name">
+                    </UFormField>
+                    <UFormField label="Club name" class="mb-4" name="name">
                         <UInput placeholder="Club name" v-model="state.name" />
-                    </UFormGroup>
+                    </UFormField>
                     <div class="w-[150px] mb-4" v-show="!hidePreview">
                         <img ref="imagePreview" class="w-full h-full" />
                     </div>
                     <UButton type="submit" :loading="isLoading">Add</UButton>
                 </UForm>
-            </UCard>
+            </template>
         </UModal>
     </section>
 </template>

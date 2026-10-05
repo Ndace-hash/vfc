@@ -30,15 +30,15 @@
 
             <UButton variant="outline" size="xs" @click="$emit('editFixture', fixture.id)">
                 <template #leading>
-                    <UIcon name="i-material-symbols-edit" dynamic class="text-lg" />
+                    <UIcon name="i-material-symbols-edit" class="text-lg" />
                 </template>
                 <template #default>
                     <span class="text-primary text-sm">Edit</span>
                 </template>
             </UButton>
-            <UButton variant="solid" color="red" size="xs" @click="deleteFixture(fixture.id)">
+            <UButton variant="solid" color="error" size="xs" @click="deleteFixture(fixture.id)">
                 <template #leading>
-                    <UIcon name="i-ph-trash" dynamic class="text-lg" />
+                    <UIcon name="i-ph-trash" class="text-lg" />
                 </template>
                 <template #default>
                     <span class="text-white text-sm">Delete</span>

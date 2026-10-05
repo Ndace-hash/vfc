@@ -19,24 +19,26 @@
 
 </script>
 
-<style scoped lang="scss">
+<style scoped>
+@reference "~/assets/css/tailwind.css";
+
 .app-header {
     @apply pt-4 justify-center items-center hidden lg:flex flex-col shadow-md z-50;
+}
 
-    &-logo {
-        @apply w-[50px] md:w-[100px];
+.app-header-logo {
+    @apply w-[50px] md:w-[100px];
 
-        img {
-            @apply w-full h-full;
-        }
+    img {
+        @apply w-full h-full;
     }
+}
 
-    &-nav {
-        @apply bg-primary w-full py-2 flex items-center justify-center text-sm md:text-lg;
+.app-header-nav {
+    @apply bg-primary w-full py-2 flex items-center justify-center text-sm md:text-lg;
 
-        .nav-links {
-            @apply max-w-[1240px] mx-auto text-white uppercase flex items-center justify-center md:gap-16 gap-6;
-        }
+    .nav-links {
+        @apply max-w-[1240px] mx-auto text-white uppercase flex items-center justify-center md:gap-16 gap-6;
     }
 }
 </style>

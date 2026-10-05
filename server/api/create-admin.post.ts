@@ -1,5 +1,6 @@
-import { authApp } from "../config/firebase2";
+import { useFirebase } from "../config/firebase2";
 export default defineEventHandler(async (event) => {
+	const { authApp } = useFirebase();
 	try {
 		const body = await readBody(event);
 		const user = await authApp.getUserByEmail(body.email);

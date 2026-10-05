@@ -1,11 +1,12 @@
 import { DocumentData, collection, getDocs } from "firebase/firestore";
-import { fireStore } from "../config/firebase2";
+import { useFirebase } from "../config/firebase2";
 
 interface ObjectParameter {
 	collectionRef: string;
 }
 export default async function (object: ObjectParameter) {
 	const { collectionRef } = object;
+	const { fireStore } = useFirebase();
 	const data = [] as DocumentData[];
 	let error = null;
 	try {

@@ -38,11 +38,13 @@
 
 <script setup lang="ts">
 import type { TeamStat } from '~/types/Team'
-defineProps<{ teamStat: TeamStat[] | null }>()
+defineProps<{ teamStat?: TeamStat[] | null }>()
 </script>
 
 
-<style lang="scss" scoped>
+<style scoped>
+@reference "~/assets/css/tailwind.css";
+
 table {
     @apply rounded-[8px] overflow-hidden w-full max-w-[950px] shadow-lg;
 
