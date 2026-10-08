@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@iconify-json/heroicons": "^1.2.3",
+    "@types/papaparse": "^5.5.2",
     "@nuxt/content": "^3.16.1",
     "nuxt": "^4.5.2",
     "nuxt-security": "^2.6.0",
@@ -26,6 +27,7 @@
     "@pinia/nuxt": "^1.0.2",
     "@popperjs/core": "^2.11.8",
     "@supabase/supabase-js": "^2.117.3",
+    "@tanstack/vue-table": "^8.21.3",
     "@tiptap/extension-image": "^3.31.4",
     "@tiptap/extension-link": "^3.31.4",
     "@tiptap/pm": "^3.31.4",
@@ -36,7 +38,9 @@
     "cheerio": "^1.2.0",
     "firebase": "^12.19.0",
     "firebase-admin": "^14.5.0",
+    "papaparse": "^5.7.0",
     "pinia": "^4.0.3",
+    "read-excel-file": "^9.3.12",
     "tailwindcss": "^4.3.3",
     "v-calendar": "^3.1.2",
     "zod": "^4.6.5"

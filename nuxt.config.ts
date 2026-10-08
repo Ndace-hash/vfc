@@ -87,6 +87,8 @@ export default defineNuxtConfig({
 			process.env.NUXT_ADMIN_AUTH_PROVIDER_X509_CERT_URL,
 		adminClientCertUrl: process.env.NUXT_ADMIN_CLIENT_X509_CERT_URL,
 		adminUniverseDomain: "",
+		// server only: bypasses row level security, never move this under `public`
+		supabaseSecretKey: process.env.SUPABASE_SECRET_KEY,
 		public: {
 			apiKey: "AIzaSyCiKk72rfOWD3gvbFKjGYdbb0uCs4NwW80",
 			authDomain: "valiant-fc-dev.firebaseapp.com",
