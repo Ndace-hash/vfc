@@ -25,6 +25,7 @@
     "@nuxt/ui": "^4.11.3",
     "@pinia/nuxt": "^1.0.2",
     "@popperjs/core": "^2.11.8",
+    "@supabase/supabase-js": "^2.117.3",
     "@tiptap/extension-image": "^3.31.4",
     "@tiptap/extension-link": "^3.31.4",
     "@tiptap/pm": "^3.31.4",

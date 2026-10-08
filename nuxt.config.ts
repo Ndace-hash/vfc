@@ -89,11 +89,13 @@ export default defineNuxtConfig({
 		adminUniverseDomain: "",
 		public: {
 			apiKey: "AIzaSyCiKk72rfOWD3gvbFKjGYdbb0uCs4NwW80",
-  authDomain: "valiant-fc-dev.firebaseapp.com",
-  projectId: "valiant-fc-dev",
-  storageBucket: "valiant-fc-dev.appspot.com",
-  messagingSenderId: "641701082658",
-  appId: "1:641701082658:web:64bd0879e02acc99c6fc7b"
+			authDomain: "valiant-fc-dev.firebaseapp.com",
+			projectId: "valiant-fc-dev",
+			storageBucket: "valiant-fc-dev.appspot.com",
+			messagingSenderId: "641701082658",
+			appId: "1:641701082658:web:64bd0879e02acc99c6fc7b",
+			supabaseUrl: process.env.SUPABASE_URL,
+			supabasePublishableKey: process.env.SUPABASE_PUBLISHABLE_KEY,
 		},
 	},
 	imports: {
