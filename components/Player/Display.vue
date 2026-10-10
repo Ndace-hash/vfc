@@ -11,9 +11,9 @@
 </template>
 
 <script setup lang="ts">
-import type { Player } from '~/types/Player';
+import type { PublicPlayer } from '~/types/Player';
 
-defineProps<{ position: string, playerList: Player[] }>()
+defineProps<{ position: string, playerList: PublicPlayer[] }>()
 </script>
 
 <style scoped></style>

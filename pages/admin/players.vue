@@ -1,416 +1,522 @@
 <template>
-    <section>
-        <h1 class="text-white capitalize text-2xl max-w-[1024px] mx-auto my-6">Team <span
-                class="font-semibold">Management</span></h1>
+	<Head>
+		<Title>Players | Valiant FC</Title>
+	</Head>
+	<section class="px-4">
+		<h1 class="text-white capitalize text-2xl max-w-[1100px] mx-auto my-6">
+			Team <span class="font-semibold">Management</span>
+		</h1>
 
-        <div
-            class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-hidden">
-            <div class="flex items-center py-4 px-4 justify-between border-b border-admin-light">
-                <button
-                    class="flex bg-primary text-white border-2 border-primary items-center justify-center gap-1 font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
-                    @click="isOpen = true">
-                    <span>Add player</span>
-                    <IconPlus width="30px" color="#ffffff" />
-                </button>
-                <div class="flex gap-2 items-center">
-                    <UButton
-                        class="bg-transparent text-admin-dark flex items-center border-2 border-primary hover:text-white"
-                        @click="refreshTable" :disabled="isRefreshing">
-                        <IconRefresh width="15px"
-                            :class="isRefreshing ? 'duration-1000 ease-linear animate-spin' : ''" />
-                        Refresh
-                    </UButton>
-                    <UInput v-model="q" placeholder="filter players..." />
-                </div>
-            </div>
-            <div class="h-[500px] overflow-y-scroll">
-                <UTable :data="filteredRows" :columns="columns">
-                    <template #actions-cell="{ row }">
-                        <UDropdownMenu :items="items(row.original)">
-                            <UButton color="neutral" variant="ghost" icon="i-heroicons-ellipsis-horizontal-20-solid" />
-                        </UDropdownMenu>
-                    </template>
-                    <template #empty>
-                        <div class="flex flex-col items-center gap-2 py-6">
-                            <UIcon name="i-heroicons-circle-stack-20-solid" class="text-2xl" />
-                            <span>No players.</span>
-                        </div>
-                    </template>
-                </UTable>
+		<div class="bg-white max-w-[1100px] mx-auto rounded-[8px] shadow-lg my-10">
+			<div
+				class="flex flex-wrap items-center gap-2 p-4 justify-between border-b border-admin-light"
+			>
+				<div class="flex flex-wrap items-center gap-2">
+					<UButton icon="i-heroicons-plus-20-solid" @click="openForm()"
+						>Add player</UButton
+					>
+					<UButton
+						color="neutral"
+						variant="outline"
+						icon="i-heroicons-arrow-up-tray-20-solid"
+						@click="importOpen = true"
+					>
+						Import
+					</UButton>
+					<UButton
+						v-if="selected.length"
+						color="error"
+						variant="soft"
+						icon="i-heroicons-trash-20-solid"
+						@click="toDelete = selected"
+					>
+						Delete {{ selected.length }} selected
+					</UButton>
+				</div>
+				<div class="flex items-center gap-2">
+					<UButton
+						color="neutral"
+						variant="ghost"
+						icon="i-heroicons-arrow-path-20-solid"
+						:loading="loading"
+						@click="loadPlayers"
+					>
+						Refresh
+					</UButton>
+					<UInput
+						v-model="search"
+						icon="i-heroicons-magnifying-glass-20-solid"
+						placeholder="Search players..."
+						class="w-56"
+					/>
+				</div>
+			</div>
 
-                <UModal v-model:open="editPlayerModal" title="Edit a player"
-                    description="Fill out the form to edit player information."
-                    :ui="{ title: 'text-primary font-bold text-xl mb-2', description: 'text-sm text-admin-dark' }">
-                    <template #body>
-                        <UForm :state="playerToEdit" @submit="updatePlayerInfo" :schema="schema">
-                            <div class="w-[150px] mb-4">
-                                <img ref="imagePreview" class="w-full h-full" :src="playerToEdit.photoURL" />
-                            </div>
+			<UAlert
+				v-if="loadError"
+				color="error"
+				variant="subtle"
+				icon="i-heroicons-exclamation-triangle"
+				title="Could not load players"
+				:description="loadError"
+				class="m-4"
+			/>
 
-                            <UFormField label="Player Image " class="mb-4" required>
+			<UTable
+				ref="table"
+				v-model:sorting="sorting"
+				v-model:pagination="pagination"
+				v-model:row-selection="rowSelection"
+				v-model:global-filter="search"
+				:data="players"
+				:columns="columns"
+				:get-row-id="(player: Player) => player.id"
+				:loading="loading"
+				:pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
+			>
+				<template #select-header="{ table: api }">
+					<UCheckbox
+						:model-value="
+							api.getIsSomePageRowsSelected()
+								? 'indeterminate'
+								: api.getIsAllPageRowsSelected()
+						"
+						aria-label="Select all players on this page"
+						@update:model-value="
+							(value) => api.toggleAllPageRowsSelected(!!value)
+						"
+					/>
+				</template>
+				<template #select-cell="{ row }">
+					<UCheckbox
+						:model-value="row.getIsSelected()"
+						:aria-label="`Select ${row.original.full_name}`"
+						@update:model-value="(value) => row.toggleSelected(!!value)"
+					/>
+				</template>
 
-                                <label for="club"
-                                    class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
-                                    <UIcon name="i-ant-design-upload-outlined" />
-                                    Player Photo
-                                </label>
-                                <input type="file" id="club" ref="inputFile" class="opacity-0"
-                                    accept=".jpg, .png, .jpeg" @change="previewFile" />
-                            </UFormField>
+				<template
+					v-for="column in SORTABLE"
+					:key="column.id"
+					#[`${column.id}-header`]="{ column: api }"
+				>
+					<UButton
+						color="neutral"
+						variant="ghost"
+						class="-mx-2.5"
+						:label="column.label"
+						:trailing-icon="sortIcon(api.getIsSorted())"
+						@click="api.toggleSorting(api.getIsSorted() === 'asc')"
+					/>
+				</template>
 
-                            <div class="flex items-center gap-4 mb-3">
+				<template #full_name-cell="{ row }">
+					<div class="flex items-center gap-3">
+						<UAvatar
+							:src="row.original.photo_url ?? undefined"
+							:alt="row.original.full_name"
+							icon="i-heroicons-user-20-solid"
+						/>
+						<span class="font-medium text-highlighted">{{
+							row.original.full_name
+						}}</span>
+					</div>
+				</template>
+				<template #date_of_birth-cell="{ row }">
+					<template v-if="row.original.date_of_birth">
+						{{ ageOf(row.original.date_of_birth) }}
+						<span class="text-muted text-xs ms-1">{{
+							formatDate(row.original.date_of_birth)
+						}}</span>
+					</template>
+				</template>
+				<template #position-cell="{ row }">
+					<span class="font-medium">{{ row.original.position }}</span>
+					<span class="text-muted text-xs ms-1.5">
+						{{ playerPosition(row.original.position)?.label }}
+					</span>
+				</template>
+				<template #preferred_foot-cell="{ row }">
+					<span class="capitalize">{{ row.original.preferred_foot }}</span>
+				</template>
+				<template #is_active-cell="{ row }">
+					<UBadge
+						:color="row.original.is_active ? 'success' : 'neutral'"
+						variant="subtle"
+					>
+						{{ row.original.is_active ? "Active" : "Inactive" }}
+					</UBadge>
+				</template>
+				<template #actions-cell="{ row }">
+					<UDropdownMenu :items="rowActions(row.original)">
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-ellipsis-horizontal-20-solid"
+							:aria-label="`Actions for ${row.original.full_name}`"
+						/>
+					</UDropdownMenu>
+				</template>
 
-                                <UFormField label="First Name" class="w-1/2" name="firstName" required>
-                                    <UInput v-model="playerToEdit.firstName" />
-                                </UFormField>
-                                <UFormField label="Last Name" class="w-1/2" name="lastName" required>
-                                    <UInput v-model="playerToEdit.lastName" />
-                                </UFormField>
-                            </div>
-                            <div class="flex items-center gap-4 mb-3">
+				<template #empty>
+					<div class="flex flex-col items-center gap-2 py-10">
+						<UIcon name="i-heroicons-users" class="text-3xl" />
+						<span>{{
+							search ? "No players match your search." : "No players yet."
+						}}</span>
+						<UButton v-if="!search" variant="link" @click="importOpen = true">
+							Import players from a spreadsheet
+						</UButton>
+					</div>
+				</template>
+			</UTable>
 
-                                <UFormField label="Position" name="position" required>
-                                    <USelect v-model="playerToEdit.position"
-                                        :items="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
-                                </UFormField>
-                                <UFormField label="Jersey Number" name="number" required>
-                                    <UInput v-model="playerToEdit.number" />
-                                </UFormField>
-                                <UFormField label="Gender" name="gender" required>
-                                    <USelect v-model="playerToEdit.gender" :items="['Male', 'Female']" />
-                                </UFormField>
-                            </div>
-                            <UFormField label="Date Of Birth" class="mb-3" name="DoB" required>
-                                <DatePicker v-model="playerToEdit.DoB" mode="date" />
-                            </UFormField>
-                            <UFormField label="State of Origin" name="stateOforigin" required>
-                                <UInputMenu v-model="playerToEdit.stateOfOrigin" :items="States" />
-                            </UFormField>
+			<div
+				class="flex flex-wrap items-center justify-between gap-2 p-4 border-t border-admin-light text-sm"
+			>
+				<span class="text-muted">{{ rangeLabel }}</span>
+				<UPagination
+					v-if="filteredCount > pagination.pageSize"
+					:page="pagination.pageIndex + 1"
+					:items-per-page="pagination.pageSize"
+					:total="filteredCount"
+					@update:page="goToPage"
+				/>
+			</div>
+		</div>
 
-                            <UButton type="submit" :loading="isLoading" class="mt-6 px-6">Edit</UButton>
-                        </UForm>
-                    </template>
-                </UModal>
-            </div>
-        </div>
-        <UModal v-model:open="isOpen" title="Add a new player" description="Fill out the form to add a new player"
-            :ui="{ title: 'text-primary font-bold text-xl mb-2', description: 'text-sm text-admin-dark' }">
-            <template #body>
-                <UForm :state="state" :schema="schema" @submit="addPlayer">
-                    <div class="w-[150px] mb-4" v-show="!hidePreview">
-                        <img ref="imagePreview" class="w-full h-full" />
-                    </div>
+		<UModal
+			v-model:open="formOpen"
+			:title="editing ? 'Edit player' : 'Add a new player'"
+			:description="
+				editing
+					? 'Update the player\'s details.'
+					: 'Fill out the form to add a new player.'
+			"
+			:ui="{
+				title: 'text-primary font-bold text-xl',
+				description: 'text-sm text-admin-dark',
+			}"
+		>
+			<template #body>
+				<AdminPlayerForm
+					:key="editing?.id ?? 'new'"
+					:player="editing"
+					:loading="saving"
+					@submit="savePlayer"
+					@cancel="formOpen = false"
+				/>
+			</template>
+		</UModal>
 
-                    <UFormField label="Player Image " class="mb-4" required>
+		<UModal
+			v-model:open="importOpen"
+			title="Import players"
+			description="Add many players at once from a CSV or Excel file."
+			:ui="{
+				content: 'sm:max-w-5xl',
+				title: 'text-primary font-bold text-xl',
+				description: 'text-sm text-admin-dark',
+			}"
+		>
+			<template #body>
+				<AdminPlayerImport
+					:existing="players"
+					@imported="addImported"
+					@close="importOpen = false"
+				/>
+			</template>
+		</UModal>
 
-                        <label for="club"
-                            class="border border-primary w-max flex items-center justify-center gap-2 py-2 px-4 rounded-[8px]">
-                            <UIcon name="i-ant-design-upload-outlined" />
-                            Player Photo
-                        </label>
-                        <input type="file" id="club" ref="inputFile" class="opacity-0" accept=".jpg, .png, .jpeg"
-                            @change="previewFile" required />
-                    </UFormField>
-
-                    <div class="flex items-center gap-4 mb-3">
-
-                        <UFormField label="First Name" class="w-1/2" name="firstName" required>
-                            <UInput v-model="state.firstName" />
-                        </UFormField>
-                        <UFormField label="Last Name" class="w-1/2" name="lastName" required>
-                            <UInput v-model="state.lastName" />
-                        </UFormField>
-                    </div>
-                    <div class="flex items-center gap-4 mb-3">
-
-                        <UFormField label="Position" name="position" required>
-                            <USelect v-model="state.position"
-                                :items="['Goalkeeper', 'Defender', 'MidFielder', 'Forward']" />
-                        </UFormField>
-                        <UFormField label="Jersey Number" name="number" required>
-                            <UInput v-model="state.number" />
-                        </UFormField>
-                        <UFormField label="Gender" name="gender" required>
-                            <USelect v-model="state.gender" :items="['Male', 'Female']" />
-                        </UFormField>
-                    </div>
-                    <UFormField label="Date Of Birth" class="mb-3" name="DoB" required>
-                        <DatePicker v-model="state.DoB" mode="date" />
-                    </UFormField>
-                    <UFormField label="State of Origin" name="state" required>
-                        <UInputMenu v-model="state.stateOfOrigin" :items="States" />
-                    </UFormField>
-
-                    <UButton type="submit" :loading="isLoading" size="sm" class="mt-6 px-6" color="primary">Add
-                    </UButton>
-                </UForm>
-            </template>
-        </UModal>
-
-    </section>
+		<UModal
+			:open="toDelete.length > 0"
+			:title="
+				toDelete.length === 1
+					? `Delete ${toDelete[0]?.full_name}?`
+					: `Delete ${toDelete.length} players?`
+			"
+			description="This cannot be undone."
+			@update:open="
+				(open) => {
+					if (!open) toDelete = [];
+				}
+			"
+		>
+			<template #body>
+				<ul
+					v-if="toDelete.length > 1"
+					class="text-sm mb-4 max-h-40 overflow-y-auto list-disc ps-5"
+				>
+					<li v-for="player in toDelete" :key="player.id">
+						{{ player.full_name }}
+					</li>
+				</ul>
+				<div class="flex justify-end gap-2">
+					<UButton
+						color="neutral"
+						variant="ghost"
+						:disabled="deleting"
+						@click="toDelete = []"
+						>Cancel
+					</UButton>
+					<UButton color="error" :loading="deleting" @click="deletePlayers"
+						>Delete</UButton
+					>
+				</div>
+			</template>
+		</UModal>
+	</section>
 </template>
 
 <script setup lang="ts">
-import { DatePicker } from 'v-calendar'
-// import { fireStore, storage } from '~/config/firebase'
-import { getDocs, addDoc, collection, deleteDoc, doc, setDoc, Timestamp } from 'firebase/firestore'
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
-import { z } from 'zod'
-import type { FormSubmitEvent } from '@nuxt/ui'
-import { timestampToDate } from '~/composables/useTimestamp'
-import { type FirebaseState } from '~/types/Firebase'
+	import { getPaginationRowModel } from "@tanstack/vue-table";
+	import {
+		ref as storageRef,
+		uploadBytes,
+		getDownloadURL,
+	} from "firebase/storage";
+	import type { TableColumn } from "@nuxt/ui";
+	import type { FirebaseState } from "~/types/Firebase";
+	import type { Player } from "~/types/Player";
 
-definePageMeta({
-    layout: 'admin'
-})
-const isLoading = ref(false)
-const isOpen = ref(false)
-const players = ref<any>([])
-const inputFile = ref<HTMLInputElement | null>()
-const editPlayerModal = ref(false)
+	definePageMeta({
+		layout: "admin",
+	});
 
-const firebase = useState<FirebaseState>('firebase')
+	const firebase = useState<FirebaseState>("firebase");
+	const adminFetch = useAdminFetch();
+	const toast = useToast();
 
-const state = reactive({
-    firstName: undefined,
-    lastName: undefined,
-    photoURL: undefined,
-    position: undefined,
-    number: undefined,
-    DoB: new Date(),
-    stateOfOrigin: undefined,
-    gender: undefined
+	const players = ref<Player[]>([]);
+	const loading = ref(false);
+	const loadError = ref("");
 
-})
+	const loadPlayers = async () => {
+		loading.value = true;
+		loadError.value = "";
+		try {
+			players.value = await adminFetch<Player[]>("/api/admin/players");
+			rowSelection.value = {};
+		} catch (error) {
+			loadError.value = fetchErrorMessage(error);
+		} finally {
+			loading.value = false;
+		}
+	};
+	onMounted(loadPlayers);
 
+	/* ---------- table ---------- */
 
-const schema = z.object({
-    firstName: z.string().trim().min(1),
-    lastName: z.string().trim().min(1),
-    position: z.string().trim().min(1),
-    number: z.string().trim().min(1),
-    stateOfOrigin: z.string(),
-    DoB: z.date(),
-    gender: z.string()
+	const SORTABLE = [
+		{ id: "full_name", label: "Player" },
+		{ id: "position", label: "Position" },
+		{ id: "jersey_number", label: "Jersey" },
+		{ id: "date_of_birth", label: "Age" },
+		{ id: "nationality", label: "Nationality" },
+		{ id: "is_active", label: "Status" },
+	] as const;
 
-})
+	const positionOrder = (code: string | null) => {
+		const index = PLAYER_POSITION_CODES.indexOf(code as PlayerPositionCode);
+		return index === -1 ? PLAYER_POSITION_CODES.length : index;
+	};
 
-type Schema = z.output<typeof schema>
-const playerToEdit = ref()
-const items = (row: any) => [
-    [{
-        label: 'Edit',
-        icon: 'i-heroicons-pencil-square-20-solid',
-        onSelect: () => {
+	const columns: TableColumn<Player>[] = [
+		{ id: "select", enableSorting: false },
+		...SORTABLE.map(({ id }): TableColumn<Player> =>
+			id === "position"
+				? {
+						accessorKey: id,
+						// goalkeepers first, strikers last, instead of alphabetical codes
+						sortingFn: (a, b) =>
+							positionOrder(a.original.position) -
+							positionOrder(b.original.position),
+					}
+				: { accessorKey: id },
+		),
+		{ accessorKey: "preferred_foot", header: "Foot", enableSorting: false },
+		{ id: "actions", enableSorting: false },
+	];
 
-            players.value.forEach((player: any) => {
-                if (row.id == player.id) playerToEdit.value = { ...player, DoB: timestampToDate(player.DoB) }
-            })
-            editPlayerModal.value = true
-            console.log(playerToEdit.value)
-        }
-    }, {
-        label: 'Delete',
-        icon: 'i-heroicons-trash-20-solid',
-        onSelect: () => {
-            try {
-                if (confirm(`Are you sure you want to delete ${row.first_name} ${row.last_name}?`)) {
-                    deleteDoc(doc(firebase.value.fireStore, 'players', row.id))
-                    players.value = players.value.filter((player: any) => player.id !== row.id)
-                }
+	const table = useTemplateRef("table");
+	const search = ref("");
+	const sorting = ref([{ id: "full_name", desc: false }]);
+	const pagination = ref({ pageIndex: 0, pageSize: 10 });
+	const rowSelection = ref<Record<string, boolean>>({});
 
-            } catch (error) {
-                console.log(error)
-                return error
-            }
-        }
-    }]
-]
+	const sortIcon = (sorted: false | "asc" | "desc") =>
+		sorted === "asc"
+			? "i-heroicons-bars-arrow-up-20-solid"
+			: sorted === "desc"
+				? "i-heroicons-bars-arrow-down-20-solid"
+				: "i-heroicons-arrows-up-down-20-solid";
 
-const columns = [{
-    accessorKey: 'firstName',
-    header: 'First Name'
-}, {
-    accessorKey: 'lastName',
-    header: 'Last Name'
-},
-{
-    accessorKey: 'position',
-    header: 'Position'
-}, {
-    accessorKey: 'number',
-    header: 'Jersey'
-},
-{
-    accessorKey: 'gender',
-    header: 'Gender'
-},
-{ id: 'actions' }]
+	const selected = computed(() =>
+		players.value.filter((player) => rowSelection.value[player.id]),
+	);
 
-const collectionRef = collection(firebase.value.fireStore, 'players')
-// const Months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December']
-const States = ['Abia', 'Adamawa', 'Akwa Ibom', 'Anambra', 'Bauchi', 'Bayelsa', 'Benue', 'Borno', 'Cross River', 'Delta', 'Ebonyi', 'Edo', 'Ekiti', 'Enugu', 'FCT', 'Gombe', 'Imo', 'Jigawa', 'Kaduna', 'Kano', 'Katsina', 'Kebbi', 'Kogi', 'Kwara', 'Lagos', 'Nasarawa', 'Niger', 'Ogun', 'Ondo', 'Osun', 'Oyo', 'Plateau', 'Rivers', 'Sokoto', 'Taraba', 'Yobe', 'Zamfara']
-async function addPlayer(event: FormSubmitEvent<Schema>) {
-    try {
-        isLoading.value = true
-        const data = {
+	const filteredCount = computed(
+		() =>
+			table.value?.tableApi.getFilteredRowModel().rows.length ??
+			players.value.length,
+	);
+	const rangeLabel = computed(() => {
+		const total = filteredCount.value;
+		if (!total) return "";
+		const first = pagination.value.pageIndex * pagination.value.pageSize + 1;
+		const last = Math.min(first + pagination.value.pageSize - 1, total);
+		return `Showing ${first}-${last} of ${total} ${total === 1 ? "player" : "players"}`;
+	});
 
-            firstName: state.firstName,
-            lastName: state.lastName,
-            photoURL: '',
-            position: state.position,
-            number: state.number,
-            DoB: state.DoB,
-            stateOfOrigin: state.stateOfOrigin,
-            gender: state.gender
-        }
-        const fileName = `${state.firstName}_${state.lastName}.png`
-        if (inputFile.value?.files !== null) {
-            const clubRef = storageRef(firebase.value.storage, `players/${fileName}`)
+	// the table only notices a new pagination object, not a changed property
+	const goToPage = (page: number) => {
+		pagination.value = { ...pagination.value, pageIndex: page - 1 };
+	};
 
-            await uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
-                getDownloadURL(snapshot.ref).then((url) => {
-                    data.photoURL = url
-                }).then(() => {
-                    addDoc(collectionRef, data)
+	// searching can leave the current page past the end of the results
+	watch(search, () => goToPage(1));
 
-                })
-            }).then(() => {
-                inputFile.value!.files = null
-                hidePreview.value = true
-                imagePreview.value!.src = ''
-                state.DoB = new Date()
-                state.firstName = undefined
-                state.lastName = undefined
-                state.gender = undefined
-                state.number = undefined
-                state.position = undefined
-                state.stateOfOrigin = undefined
-                state.photoURL = undefined
-                isLoading.value = false
-            })
+	const formatDate = (date: string) =>
+		new Date(`${date}T00:00:00`).toLocaleDateString("en-GB", {
+			day: "numeric",
+			month: "short",
+			year: "numeric",
+		});
 
-        }
-        isLoading.value = false
-        isOpen.value = false
-    } catch (e) {
+	const ageOf = (dateOfBirth: string) => {
+		const born = new Date(`${dateOfBirth}T00:00:00`);
+		const now = new Date();
+		const hadBirthday =
+			now.getMonth() > born.getMonth() ||
+			(now.getMonth() === born.getMonth() && now.getDate() >= born.getDate());
+		return now.getFullYear() - born.getFullYear() - (hadBirthday ? 0 : 1);
+	};
 
-        isLoading.value = false
-        console.log(e)
-    }
-}
-onBeforeMount(async () => {
-    try {
-        const snapshot = await getDocs(collectionRef)
+	const rowActions = (player: Player) => [
+		[
+			{
+				label: "Edit",
+				icon: "i-heroicons-pencil-square-20-solid",
+				onSelect: () => openForm(player),
+			},
+			{
+				label: "Delete",
+				icon: "i-heroicons-trash-20-solid",
+				color: "error" as const,
+				onSelect: () => {
+					toDelete.value = [player];
+				},
+			},
+		],
+	];
 
-        snapshot.docs.forEach((doc) => {
-            const data = doc.data()
+	/* ---------- add and edit ---------- */
 
-            players.value.push({
-                id: doc.id,
-                ...data
-            }
-            )
-        })
-    } catch (e) {
-        console.log(e)
-    }
-})
+	const formOpen = ref(false);
+	const editing = ref<Player | null>(null);
+	const saving = ref(false);
 
-const q = ref('')
+	const openForm = (player: Player | null = null) => {
+		editing.value = player;
+		formOpen.value = true;
+	};
 
-const filteredRows = computed(() => {
-    if (!q.value) {
-        return players.value
-    }
+	const uploadPhoto = async (photo: File, playerName: string) => {
+		const name = playerName
+			.trim()
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, "_");
+		const extension = photo.name.split(".").pop();
+		const fileRef = storageRef(
+			firebase.value.storage,
+			`players/${name}_${Date.now()}.${extension}`,
+		);
+		const snapshot = await uploadBytes(fileRef, photo);
+		return getDownloadURL(snapshot.ref);
+	};
 
-    return players.value.filter(player => {
-        return Object.values(player).some((value) => {
-            return String(value).toLowerCase().includes(q.value.toLowerCase())
-        })
-    })
-})
-const isRefreshing = ref(false)
-const imagePreview = ref<HTMLImageElement | null>()
-const hidePreview = ref(true)
-const previewFile: (payload: Event) => void = (payload) => {
+	const savePlayer = async (player: PlayerInput, photo: File | null) => {
+		saving.value = true;
+		try {
+			if (photo)
+				player = {
+					...player,
+					photo_url: await uploadPhoto(photo, player.full_name),
+				};
 
-    imagePreview.value!.src = URL.createObjectURL(payload.target?.files[0])
-    hidePreview.value = false
+			if (editing.value) {
+				const updated = await adminFetch<Player>(
+					`/api/admin/players/${editing.value.id}`,
+					{ method: "PATCH", body: player },
+				);
+				players.value = players.value.map((other) =>
+					other.id === updated.id ? updated : other,
+				);
+			} else {
+				players.value.push(
+					await adminFetch<Player>("/api/admin/players", {
+						method: "POST",
+						body: player,
+					}),
+				);
+			}
+			toast.add({
+				title: editing.value ? "Player updated" : "Player added",
+				description: player.full_name,
+				color: "success",
+			});
+			formOpen.value = false;
+		} catch (error) {
+			toast.add({
+				title: "Could not save the player",
+				description: fetchErrorMessage(error),
+				color: "error",
+			});
+		} finally {
+			saving.value = false;
+		}
+	};
 
-}
-const refreshTable = async () => {
-    try {
-        players.value = []
-        isRefreshing.value = true
-        const snapshot = await getDocs(collectionRef)
-        snapshot.docs.forEach((doc) => {
+	/* ---------- import ---------- */
 
-            const data = doc.data()
-            players.value.push({
-                id: doc.id,
-                ...data
-            }
-            )
-        })
-        console.log('success')
-        isRefreshing.value = false
+	const importOpen = ref(false);
 
-    } catch (e) {
-        console.log(e)
-    }
-}
+	const addImported = (imported: Player[]) => {
+		players.value.push(...imported);
+	};
 
-async function updatePlayerInfo(event: FormSubmitEvent<Schema>) {
-    try {
-        isLoading.value = true
-        const data = {
+	/* ---------- delete ---------- */
 
-            firstName: playerToEdit.value.firstName,
-            lastName: playerToEdit.value.lastName,
-            photoURL: playerToEdit.value.photoURL,
-            position: playerToEdit.value.position,
-            number: playerToEdit.value.number,
-            DoB: Timestamp.fromDate(playerToEdit.value.DoB),
-            stateOfOrigin: playerToEdit.value.stateOfOrigin,
-            gender: playerToEdit.value.gender
-        }
-        const fileName = `${playerToEdit.value.firstName}_${playerToEdit.value.lastName}.png`
-        if (inputFile.value?.files !== null) {
-            const clubRef = storageRef(firebase.value.storage, `players/${fileName}`)
+	const toDelete = ref<Player[]>([]);
+	const deleting = ref(false);
 
-            await uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
-                getDownloadURL(snapshot.ref).then((url) => {
-                    data.photoURL = url
-                }).then(() => {
-                    setDoc(doc(collectionRef, playerToEdit.value.id), data)
-
-                })
-            }).then(() => {
-                inputFile.value!.files = null
-                hidePreview.value = true
-                imagePreview.value!.src = ''
-                state.DoB = new Date()
-                state.firstName = undefined
-                state.lastName = undefined
-                state.gender = undefined
-                state.number = undefined
-                state.position = undefined
-                state.stateOfOrigin = undefined
-                state.photoURL = undefined
-                isLoading.value = false
-            })
-
-        }
-        isLoading.value = false
-        editPlayerModal.value = false
-    } catch (e) {
-
-        isLoading.value = false
-        console.log(e)
-    }
-}
-
+	const deletePlayers = async () => {
+		deleting.value = true;
+		try {
+			const { deleted } = await adminFetch<{ deleted: string[] }>(
+				"/api/admin/players",
+				{
+					method: "DELETE",
+					body: { ids: toDelete.value.map((player) => player.id) },
+				},
+			);
+			players.value = players.value.filter(
+				(player) => !deleted.includes(player.id),
+			);
+			rowSelection.value = {};
+			toast.add({
+				title: `${deleted.length} ${deleted.length === 1 ? "player" : "players"} deleted`,
+				color: "success",
+			});
+			toDelete.value = [];
+		} catch (error) {
+			toast.add({
+				title: "Could not delete",
+				description: fetchErrorMessage(error),
+				color: "error",
+			});
+		} finally {
+			deleting.value = false;
+		}
+	};
 </script>
-
-<style scoped></style>
