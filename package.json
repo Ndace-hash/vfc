@@ -12,9 +12,10 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
+    "@iconify-json/bi": "^1.2.7",
     "@iconify-json/heroicons": "^1.2.3",
-    "@types/papaparse": "^5.5.2",
     "@nuxt/content": "^3.16.1",
+    "@types/papaparse": "^5.5.2",
     "nuxt": "^4.5.2",
     "nuxt-security": "^2.6.0",
     "nuxt-swiper": "^2.0.2",
