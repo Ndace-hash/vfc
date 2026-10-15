@@ -1,239 +1,530 @@
 <template>
+	<Head>
+		<Title>Fixtures | Valiant FC</Title>
+	</Head>
+	<section class="px-4">
+		<h1 class="text-white capitalize text-2xl max-w-[1100px] mx-auto my-6">
+			Fixtures
+		</h1>
 
-    <Head>
-        <Title>Fixtures | Valiant FC</Title>
-    </Head>
-    <section>
-        <div>
-            <h1 class="text-white capitalize text-2xl max-w-[1024px] mx-auto my-6">Fixtures</h1>
-            <div
-                class="bg-white max-w-[1024px] h-full max-h-[600px] mx-auto rounded-[8px] shadow-lg my-10 overflow-y-auto">
-                <div class="flex items-center py-4 px-4 justify-between border-b border-admin-light">
-                    <button
-                        class="flex bg-primary text-white border-2 border-primary items-center justify-center gap-1   font-semibold py-2 px-4 rounded-full md:hover:shadow-md duration-200 ease-in "
-                        @click="isOpen = true">
-                        <span>Add Fixtures</span>
-                        <IconPlus width="30px" color="#ffffff" />
-                    </button>
-                    <div class="flex gap-2 items-center">
-                        <UButton @click="refresh"
-                            class="bg-transparent text-admin-dark flex items-center border-2 border-primary hover:text-white"
-                            :loading="isRefreshing">
-                            Refresh
-                        </UButton>
-                    </div>
-                </div>
-                <AdminFixtureCard v-for="fixture in fixtures" :key="fixture.id" :fixture="fixture"
-                    @edit-fixture="openEditModal" />
-            </div>
+		<div class="bg-white max-w-[1100px] mx-auto rounded-[8px] shadow-lg my-10">
+			<div
+				class="flex flex-wrap items-center gap-2 p-4 justify-between border-b border-admin-light"
+			>
+				<div class="flex flex-wrap items-center gap-2">
+					<UButton
+						icon="i-heroicons-plus-20-solid"
+						:disabled="teams.length < 2"
+						@click="openForm()"
+						>Add fixture</UButton
+					>
+					<UButton
+						color="neutral"
+						variant="outline"
+						icon="i-heroicons-arrow-up-tray-20-solid"
+						@click="importOpen = true"
+					>
+						Import
+					</UButton>
+					<UButton
+						v-if="selected.length"
+						color="error"
+						variant="soft"
+						icon="i-heroicons-trash-20-solid"
+						@click="toDelete = selected"
+					>
+						Delete {{ selected.length }} selected
+					</UButton>
+				</div>
+				<div class="flex items-center gap-2">
+					<UButton
+						color="neutral"
+						variant="ghost"
+						icon="i-heroicons-arrow-path-20-solid"
+						:loading="loading"
+						@click="load"
+					>
+						Refresh
+					</UButton>
+					<UInput
+						v-model="search"
+						icon="i-heroicons-magnifying-glass-20-solid"
+						placeholder="Search by team..."
+						class="w-56"
+					/>
+				</div>
+			</div>
 
-        </div>
+			<UAlert
+				v-if="loadError"
+				color="error"
+				variant="subtle"
+				icon="i-heroicons-exclamation-triangle"
+				title="Could not load fixtures"
+				:description="loadError"
+				class="m-4"
+			/>
+			<UAlert
+				v-else-if="!loading && teams.length < 2"
+				color="neutral"
+				variant="subtle"
+				icon="i-heroicons-information-circle"
+				title="Add at least two teams before adding fixtures"
+				description="Teams can also be created while importing a spreadsheet."
+				class="m-4"
+				:actions="[
+					{
+						label: 'Go to Teams',
+						to: '/admin/teams',
+						color: 'neutral',
+						variant: 'outline',
+					},
+				]"
+			/>
 
-        <UModal v-model:open="isOpen" title="Fixtures" :ui="{ title: 'text-primary text-2xl font-bold' }">
-            <template #body>
-                <UForm :state="state" @submit="addFixture" :schema="schema">
-                    <UFormField label="Venue" class="mb-4" name="venue">
-                        <URadioGroup v-model="state.venue" :items="options" orientation="horizontal"
-                            class="my-2" :ui="{ fieldset: 'gap-x-6' }" />
-                    </UFormField>
-                    <UFormField label="Oponent" class="mb-4" name="opponent">
-                        <UInputMenu :items="clubs" by="name" label-key="name" v-model="state.opponent">
-                            <template #item="{ item: club }">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-16">
-                                        <img :src="club.logo" :alt="club.name" class="w-full h-full">
-                                    </div>
-                                    <span>{{ club.name }}</span>
-                                </div>
+			<UTable
+				ref="table"
+				v-model:sorting="sorting"
+				v-model:pagination="pagination"
+				v-model:row-selection="rowSelection"
+				v-model:global-filter="search"
+				:data="rows"
+				:columns="columns"
+				:get-row-id="(row: FixtureRow) => String(row.id)"
+				:loading="loading"
+				:pagination-options="{ getPaginationRowModel: getPaginationRowModel() }"
+			>
+				<template #select-header="{ table: api }">
+					<UCheckbox
+						:model-value="
+							api.getIsSomePageRowsSelected()
+								? 'indeterminate'
+								: api.getIsAllPageRowsSelected()
+						"
+						aria-label="Select all fixtures on this page"
+						@update:model-value="
+							(value) => api.toggleAllPageRowsSelected(!!value)
+						"
+					/>
+				</template>
+				<template #select-cell="{ row }">
+					<UCheckbox
+						:model-value="row.getIsSelected()"
+						:aria-label="`Select ${row.original.homeName} v ${row.original.awayName}`"
+						@update:model-value="(value) => row.toggleSelected(!!value)"
+					/>
+				</template>
 
-                            </template>
-                        </UInputMenu>
-                    </UFormField>
-                    <UFormField label="Season" class="mb-4" name="season">
-                        <UInput placeholder="Ex. 2023/2024" v-model="state.season" />
-                    </UFormField>
-                    <UFormField label="Match Day" class="mb-4 flex items-center flex-col" name="date">
-                        <DatePicker mode="dateTime" v-model="state.date" />
-                    </UFormField>
-                    <UFormField class="flex justify-end">
-                        <UButton label="Add" type="submit" class="px-8" size="lg" />
-                    </UFormField>
-                </UForm>
-            </template>
-        </UModal>
-        <UModal v-model:open="editModalIsOpen" title="Fixtures" :ui="{ title: 'text-primary text-2xl font-bold' }">
-            <template #body>
-                <div class="flex flex-col items-center">
-                    <div class="flex items-center gap-3">
-                        <div class="w-[100px]">
-                            <img :src="fixtureToEdit.home.logo" :alt="fixtureToEdit.home.name"
-                                class="w-full h-full">
-                        </div>
-                        <span class="font-bold text-lg">VS</span>
-                        <div class="w-[100px]">
-                            <img :src="fixtureToEdit.away.logo" :alt="fixtureToEdit.away.name"
-                                class="w-full h-full">
-                        </div>
-                    </div>
-                    <UForm :state="fixtureToEdit" @submit="updateFixture(fixtureToEdit.id)">
-                        <UCheckbox label="Match Played" class="mb-4" v-model="fixtureToEdit.played" />
-                        <UFormField label="Scores" class="mb-6 flex flex-col items-center">
-                            <div class="flex items-center gap-4">
-                                <UInput v-model="fixtureToEdit.goals.home" class="w-10 font-bold text-2xl"
-                                    size="sm" />
-                                <span class="text-xl font-bold">--</span>
-                                <UInput v-model="fixtureToEdit.goals.away" class="w-10 font-bold text-2xl"
-                                    size="sm" />
-                            </div>
-                        </UFormField>
-                        <UFormField label="Match day" class="mb-4">
-                            <DatePicker v-model="fixtureToEdit.date" mode="dateTime" />
-                        </UFormField>
-                        <UFormField class="flex justify-end">
-                            <UButton label="Update" type="submit" class="px-8" size="lg" />
-                        </UFormField>
-                    </UForm>
-                </div>
-            </template>
-        </UModal>
-    </section>
+				<template #start_time-header="{ column }">
+					<UButton
+						color="neutral"
+						variant="ghost"
+						class="-mx-2.5"
+						label="Kick-off"
+						:trailing-icon="sortIcon(column.getIsSorted())"
+						@click="column.toggleSorting(column.getIsSorted() === 'asc')"
+					/>
+				</template>
+				<template #start_time-cell="{ row }">
+					<template v-if="row.original.start_time">
+						{{ formatKickoffDay(row.original.start_time) }}
+						<span class="text-muted ms-1">{{
+							kickoffParts(row.original.start_time).time
+						}}</span>
+					</template>
+				</template>
+				<template #homeName-cell="{ row }">
+					<div class="flex items-center gap-2 justify-end text-right">
+						<span class="font-medium text-highlighted">{{
+							row.original.homeName
+						}}</span>
+						<TeamCrest
+							:name="row.original.homeName"
+							:crest-url="row.original.homeCrest"
+							class="size-7 shrink-0"
+						/>
+					</div>
+				</template>
+				<template #score-cell="{ row }">
+					<span
+						v-if="row.original.home_score !== null"
+						class="font-bold tabular-nums"
+						>{{ row.original.home_score }} - {{ row.original.away_score }}</span
+					>
+					<span v-else class="text-muted">v</span>
+				</template>
+				<template #awayName-cell="{ row }">
+					<div class="flex items-center gap-2">
+						<TeamCrest
+							:name="row.original.awayName"
+							:crest-url="row.original.awayCrest"
+							class="size-7 shrink-0"
+						/>
+						<span class="font-medium text-highlighted">{{
+							row.original.awayName
+						}}</span>
+					</div>
+				</template>
+				<template #state-cell="{ row }">
+					<UBadge :color="STATE[row.original.state].color" variant="subtle">
+						{{ STATE[row.original.state].label }}
+					</UBadge>
+				</template>
+				<template #actions-cell="{ row }">
+					<UDropdownMenu :items="rowActions(row.original)">
+						<UButton
+							color="neutral"
+							variant="ghost"
+							icon="i-heroicons-ellipsis-horizontal-20-solid"
+							aria-label="Fixture actions"
+						/>
+					</UDropdownMenu>
+				</template>
+
+				<template #empty>
+					<div class="flex flex-col items-center gap-2 py-10">
+						<UIcon name="i-heroicons-calendar-days" class="text-3xl" />
+						<span>{{
+							search ? "No fixtures match your search." : "No fixtures yet."
+						}}</span>
+						<UButton v-if="!search" variant="link" @click="importOpen = true">
+							Import fixtures from a spreadsheet
+						</UButton>
+					</div>
+				</template>
+			</UTable>
+
+			<div
+				class="flex flex-wrap items-center justify-between gap-2 p-4 border-t border-admin-light text-sm"
+			>
+				<span class="text-muted">{{ rangeLabel }}</span>
+				<UPagination
+					v-if="filteredCount > pagination.pageSize"
+					:page="pagination.pageIndex + 1"
+					:items-per-page="pagination.pageSize"
+					:total="filteredCount"
+					@update:page="goToPage"
+				/>
+			</div>
+		</div>
+
+		<UModal
+			v-model:open="formOpen"
+			:title="editing ? 'Edit fixture' : 'Add a fixture'"
+			:description="
+				editing
+					? 'Add the score once the match has been played.'
+					: 'Leave the scores empty until the match has been played.'
+			"
+			:ui="{
+				title: 'text-primary font-bold text-xl',
+				description: 'text-sm text-admin-dark',
+			}"
+		>
+			<template #body>
+				<AdminFixtureForm
+					:key="editing?.id ?? 'new'"
+					:match="editing"
+					:teams="teams"
+					:loading="saving"
+					@submit="saveMatch"
+					@cancel="formOpen = false"
+				/>
+			</template>
+		</UModal>
+
+		<UModal
+			v-model:open="importOpen"
+			title="Import fixtures"
+			description="Add many fixtures at once from a CSV or Excel file."
+			:ui="{
+				content: 'sm:max-w-5xl',
+				title: 'text-primary font-bold text-xl',
+				description: 'text-sm text-admin-dark',
+			}"
+		>
+			<template #body>
+				<AdminFixtureImport
+					:teams="teams"
+					:existing="matches"
+					@imported="addImported"
+					@close="importOpen = false"
+				/>
+			</template>
+		</UModal>
+
+		<UModal
+			:open="toDelete.length > 0"
+			:title="
+				toDelete.length === 1
+					? `Delete ${toDelete[0]?.homeName} v ${toDelete[0]?.awayName}?`
+					: `Delete ${toDelete.length} fixtures?`
+			"
+			description="This cannot be undone."
+			@update:open="
+				(open) => {
+					if (!open) toDelete = [];
+				}
+			"
+		>
+			<template #body>
+				<ul
+					v-if="toDelete.length > 1"
+					class="text-sm mb-4 max-h-40 overflow-y-auto list-disc ps-5"
+				>
+					<li v-for="row in toDelete" :key="row.id">
+						{{ row.homeName }} v {{ row.awayName }}
+						<span v-if="row.start_time" class="text-muted"
+							>({{ formatKickoffDay(row.start_time) }})</span
+						>
+					</li>
+				</ul>
+				<div class="flex justify-end gap-2">
+					<UButton
+						color="neutral"
+						variant="ghost"
+						:disabled="deleting"
+						@click="toDelete = []"
+						>Cancel
+					</UButton>
+					<UButton color="error" :loading="deleting" @click="deleteMatches"
+						>Delete</UButton
+					>
+				</div>
+			</template>
+		</UModal>
+	</section>
 </template>
 
 <script setup lang="ts">
-import { type FirebaseState } from '~/types/Firebase'
-import { collection, getDocs, addDoc, doc, setDoc, Timestamp, orderBy, query } from 'firebase/firestore'
-import { DatePicker } from 'v-calendar'
-import { z } from 'zod'
-definePageMeta({
-    layout: 'admin'
-})
-const valiant = useState('valiant')
-const firebase = useState<FirebaseState>('firebase')
-const isOpen = ref(false)
-const isRefreshing = ref(false)
-const state = reactive({
-    venue: '',
-    date: new Date(),
-    opponent: { id: '', logo: '', name: '' },
-    season: ''
-})
-const schema = z.object({
-    venue: z.string(),
-    date: z.date()
+	import { getPaginationRowModel } from "@tanstack/vue-table";
+	import type { TableColumn } from "@nuxt/ui";
+	import type { Match } from "~/types/Match";
+	import type { Team } from "~/types/Team";
 
-})
-const clubs = ref<any>([])
-const fixtures = ref<any>([])
-const options = [{
-    label: 'Home',
-    value: 'home'
-}, { label: 'Away', value: 'away' }]
-const addFixture = () => {
-    const fixture = ref({
-        home: {
-            id: '',
-            logo: '',
-            name: ''
-        },
-        away: {
-            id: '',
-            logo: '',
-            name: ''
-        },
-        season: state.season.trim().replace('/', '_'), played: false,
-        goals: {
-            home: 0,
-            away: 0,
-        },
-        date: Timestamp.fromDate(state.date)
-    })
-    if (state.venue == 'home') {
-        fixture.value.away = state.opponent
-        fixture.value.home = valiant.value
-    } else if (state.venue == 'away') {
-        fixture.value.home = state.opponent
-        fixture.value.away = valiant.value
+	definePageMeta({
+		layout: "admin",
+	});
 
-    }
-    try {
-        console.log(fixture.value);
+	const adminFetch = useAdminFetch();
+	const toast = useToast();
 
-        addDoc(collection(firebase.value.fireStore, 'fixtures'), fixture.value).then((snapshot) => {
-            console.log(snapshot)
-        })
-        state.venue = ''
-        state.season = ""
-        state.opponent.id = ""
-        state.opponent.logo = ""
-        state.opponent.name = ""
-    } catch (e) {
-        console.error(e)
-    }
-}
+	const matches = ref<Match[]>([]);
+	const teams = ref<Team[]>([]);
+	const loading = ref(false);
+	const loadError = ref("");
 
-const editModalIsOpen = ref(false)
-const fixtureToEdit = ref()
+	const load = async () => {
+		loading.value = true;
+		loadError.value = "";
+		try {
+			[matches.value, teams.value] = await Promise.all([
+				adminFetch<Match[]>("/api/admin/matches"),
+				adminFetch<Team[]>("/api/admin/teams"),
+			]);
+			rowSelection.value = {};
+		} catch (error) {
+			loadError.value = fetchErrorMessage(error);
+		} finally {
+			loading.value = false;
+		}
+	};
+	onMounted(load);
 
-const fixtureColRef = collection(firebase.value.fireStore, 'fixtures')
+	/* ---------- table ---------- */
 
-const refresh = () => {
-    try {
-        isRefreshing.value = true
-        fixtures.value = []
-        clubs.value = []
-        const fixtureQuery = query(fixtureColRef, orderBy("date", "desc"))
+	const STATE = {
+		played: { label: "Played", color: "success" },
+		upcoming: { label: "Upcoming", color: "info" },
+		awaiting: { label: "Needs score", color: "warning" },
+	} as const;
 
-        getDocs(fixtureQuery).then((snapshot) => {
-            snapshot.docs.forEach((doc) => {
-                const data = doc.data()
-                fixtures.value.push({ id: doc.id, ...data })
-            })
-            isRefreshing.value = false
-        })
-    } catch (e) {
-        isRefreshing.value = false
-        console.log(e)
-    }
-}
+	// a fixture with its team names, for showing, searching and sorting
+	interface FixtureRow extends Match {
+		homeName: string;
+		homeCrest: string | null;
+		awayName: string;
+		awayCrest: string | null;
+		state: keyof typeof STATE;
+	}
 
+	const rows = computed<FixtureRow[]>(() => {
+		const byId = new Map(teams.value.map((team) => [team.id, team]));
+		const now = Date.now();
+		return matches.value.map((match) => {
+			const home = byId.get(match.home_team);
+			const away = byId.get(match.away_team);
+			return {
+				...match,
+				homeName: home?.name ?? "Unknown team",
+				homeCrest: home?.crest_url ?? null,
+				awayName: away?.name ?? "Unknown team",
+				awayCrest: away?.crest_url ?? null,
+				state:
+					match.home_score !== null && match.away_score !== null
+						? "played"
+						: match.start_time && Date.parse(match.start_time) < now
+							? "awaiting"
+							: "upcoming",
+			};
+		});
+	});
 
-onBeforeMount(() => {
-    getDocs(collection(firebase.value.fireStore, 'clubs')).then((snapshot) => {
-        snapshot.docs.forEach(doc => {
-            const data = doc.data()
-            clubs.value.push({ id: doc.id, name: data.name, logo: data.logo })
-        })
-    })
-    const fixtureQuery = query(fixtureColRef, orderBy("date", "desc"))
+	const columns: TableColumn<FixtureRow>[] = [
+		{ id: "select", enableSorting: false },
+		{ accessorKey: "start_time", enableGlobalFilter: false },
+		{ accessorKey: "homeName", header: "Home", enableSorting: false },
+		{ id: "score", header: "", enableSorting: false },
+		{ accessorKey: "awayName", header: "Away", enableSorting: false },
+		{ accessorKey: "state", header: "Status", enableGlobalFilter: false },
+		{ id: "actions", enableSorting: false },
+	];
 
-    getDocs(fixtureQuery).then((snapshot) => {
-        snapshot.docs.forEach((doc) => {
-            const data = doc.data()
-            fixtures.value.push({ id: doc.id, ...data })
-        })
-    })
-})
+	const table = useTemplateRef("table");
+	const search = ref("");
+	// newest first, like the old fixtures page
+	const sorting = ref([{ id: "start_time", desc: true }]);
+	const pagination = ref({ pageIndex: 0, pageSize: 10 });
+	const rowSelection = ref<Record<string, boolean>>({});
 
-const openEditModal = (id: anydey) => {
-    editModalIsOpen.value = true
-    fixtureToEdit.value = fixtures.value.map((f: any) => ({
-        ...f,
-        date: f.date.toDate()
-    })).find((fixture: any) => fixture.id === id)
-}
-const isLoading = ref(false)
-const updateFixture = (id: string) => {
-    isLoading.value = true;
-    try {
-        setDoc(doc(firebase.value.fireStore, 'fixtures', id), fixtureToEdit.value).then((snapshot) => {
-            console.log(snapshot)
-        })
-        isLoading.value = false
-    } catch (e) {
-        isLoading.value = false
-        console.error(e)
-    }
-}
+	const sortIcon = (sorted: false | "asc" | "desc") =>
+		sorted === "asc"
+			? "i-heroicons-bars-arrow-up-20-solid"
+			: sorted === "desc"
+				? "i-heroicons-bars-arrow-down-20-solid"
+				: "i-heroicons-arrows-up-down-20-solid";
+
+	const selected = computed(() =>
+		rows.value.filter((row) => rowSelection.value[String(row.id)]),
+	);
+
+	const filteredCount = computed(
+		() =>
+			table.value?.tableApi.getFilteredRowModel().rows.length ??
+			rows.value.length,
+	);
+	const rangeLabel = computed(() => {
+		const total = filteredCount.value;
+		if (!total) return "";
+		const first = pagination.value.pageIndex * pagination.value.pageSize + 1;
+		const last = Math.min(first + pagination.value.pageSize - 1, total);
+		return `Showing ${first}-${last} of ${total} ${total === 1 ? "fixture" : "fixtures"}`;
+	});
+
+	// the table only notices a new pagination object, not a changed property
+	const goToPage = (page: number) => {
+		pagination.value = { ...pagination.value, pageIndex: page - 1 };
+	};
+	watch(search, () => goToPage(1));
+
+	const rowActions = (row: FixtureRow) => [
+		[
+			{
+				label: row.state === "awaiting" ? "Add score" : "Edit",
+				icon: "i-heroicons-pencil-square-20-solid",
+				onSelect: () => openForm(row),
+			},
+			{
+				label: "Delete",
+				icon: "i-heroicons-trash-20-solid",
+				color: "error" as const,
+				onSelect: () => {
+					toDelete.value = [row];
+				},
+			},
+		],
+	];
+
+	/* ---------- add and edit ---------- */
+
+	const formOpen = ref(false);
+	const editing = ref<Match | null>(null);
+	const saving = ref(false);
+
+	const openForm = (match: Match | null = null) => {
+		editing.value = match;
+		formOpen.value = true;
+	};
+
+	const saveMatch = async (match: MatchInput) => {
+		saving.value = true;
+		try {
+			if (editing.value) {
+				const updated = await adminFetch<Match>(
+					`/api/admin/matches/${editing.value.id}`,
+					{ method: "PATCH", body: match },
+				);
+				matches.value = matches.value.map((other) =>
+					other.id === updated.id ? updated : other,
+				);
+			} else {
+				matches.value = [
+					...matches.value,
+					await adminFetch<Match>("/api/admin/matches", {
+						method: "POST",
+						body: match,
+					}),
+				];
+			}
+			toast.add({
+				title: editing.value ? "Fixture updated" : "Fixture added",
+				color: "success",
+			});
+			formOpen.value = false;
+		} catch (error) {
+			toast.add({
+				title: "Could not save the fixture",
+				description: fetchErrorMessage(error),
+				color: "error",
+			});
+		} finally {
+			saving.value = false;
+		}
+	};
+
+	/* ---------- import ---------- */
+
+	const importOpen = ref(false);
+
+	const addImported = (imported: Match[], newTeams: Team[]) => {
+		teams.value = [...teams.value, ...newTeams].sort((a, b) =>
+			a.name.localeCompare(b.name),
+		);
+		matches.value = [...matches.value, ...imported];
+	};
+
+	/* ---------- delete ---------- */
+
+	const toDelete = ref<FixtureRow[]>([]);
+	const deleting = ref(false);
+
+	const deleteMatches = async () => {
+		deleting.value = true;
+		try {
+			const { deleted } = await adminFetch<{ deleted: number[] }>(
+				"/api/admin/matches",
+				{
+					method: "DELETE",
+					body: { ids: toDelete.value.map((row) => row.id) },
+				},
+			);
+			matches.value = matches.value.filter(
+				(match) => !deleted.includes(match.id),
+			);
+			rowSelection.value = {};
+			toast.add({
+				title: `${deleted.length} ${deleted.length === 1 ? "fixture" : "fixtures"} deleted`,
+				color: "success",
+			});
+			toDelete.value = [];
+		} catch (error) {
+			toast.add({
+				title: "Could not delete",
+				description: fetchErrorMessage(error),
+				color: "error",
+			});
+		} finally {
+			deleting.value = false;
+		}
+	};
 </script>
-
-<style scoped></style>
