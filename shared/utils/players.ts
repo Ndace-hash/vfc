@@ -32,7 +32,7 @@ export const playerPosition = (code: string | null | undefined) =>
 
 export const PREFERRED_FEET = ["left", "right", "both"] as const;
 
-const blankToNull = (value: unknown) =>
+export const blankToNull = (value: unknown) =>
 	value === undefined || (typeof value === "string" && value.trim() === "")
 		? null
 		: value;

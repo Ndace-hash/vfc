@@ -13,6 +13,7 @@
                     </span>
                 </RouterLink>
                 <RouterLink to="/admin/players" class="font-bold capitalize">players</RouterLink>
+                <RouterLink to="/admin/teams" class="font-bold capitalize">Teams</RouterLink>
                 <RouterLink to="/admin/news" class="font-bold capitalize">News</RouterLink>
                 <RouterLink to="/admin/club" class="font-bold capitalize">Clubs </RouterLink>
                 <RouterLink to="/admin/fixture" class="font-bold capitalize">Fixtures</RouterLink>
