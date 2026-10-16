@@ -31,7 +31,6 @@ export default defineNuxtConfig({
 	modules: [
 		"@nuxt/ui",
 		"@nuxt/content",
-		"nuxt-swiper",
 		"@pinia/nuxt",
 		"nuxt-security",
 	],
@@ -66,6 +65,14 @@ export default defineNuxtConfig({
 		},
 		corsHandler: {
 			origin: "*",
+		},
+	},
+	routeRules: {
+		// public form: a handful of enquiries per visitor every 10 minutes is plenty
+		"/api/sponsor-enquiries": {
+			security: {
+				rateLimiter: { tokensPerInterval: 5, interval: 10 * 60 * 1000 },
+			},
 		},
 	},
 	css: ["~/assets/css/tailwind.css", "v-calendar/style.css"],

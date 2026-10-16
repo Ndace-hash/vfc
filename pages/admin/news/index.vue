@@ -24,7 +24,7 @@
                         <UIcon name="i-material-symbols-drive-folder-upload-outline-rounded" class="text-lg" />
                         Upload
                     </label>
-                    <input type="file" accept=".jpg,.png,.jpeg" id="banner" class="opacity-0" ref="inputFile" required
+                    <input type="file" :accept="IMAGE_ACCEPT" id="banner" class="opacity-0" ref="inputFile" required
                         @change="previewFile" />
                     <div class="h-[250px] my-4" v-show="!hidePreview">
                         <img ref="imagePreview" class="w-full h-full" />
@@ -52,7 +52,6 @@
 </template>
 
 <script setup lang="ts">
-import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage'
 import { collection, addDoc, Timestamp } from 'firebase/firestore'
 import { z } from 'zod'
 import type { FirebaseState } from '~/types/Firebase'
@@ -74,34 +73,25 @@ const state = reactive({
 const inputFile = ref<HTMLInputElement | null>()
 
 const firebase = useState<FirebaseState>('firebase')
+const uploadImage = useImageUpload()
+const toast = useToast()
 
+// the banner goes to Supabase Storage; the article itself is still kept in Firestore
 const publish = async () => {
+    const banner = inputFile.value?.files?.[0]
+    if (!banner) return
     isLoading.value = true
     try {
-        const fileName = `${state.title.replaceAll(" ", "_")}.jpg`;
-        if (inputFile.value!.files !== null) {
-            console.log(inputFile);
-            const clubRef = storageRef(firebase.value.storage, `news/${fileName}`);
-            uploadBytes(clubRef, inputFile.value!.files[0]).then((snapshot: any) => {
-                getDownloadURL(snapshot.ref)
-                    .then((url) => {
-                        state.bannerUrl = url;
-                    })
-                    .then(() => {
-                        addDoc(collection(firebase.value.fireStore, "news"), {
-                            ...state,
-                            publishedAt: Timestamp.now(),
-                        }).then((snapshot) => {
-
-
-                            console.log(snapshot);
-                        });
-                    });
-            });
-        }
-        isLoading.value = false
+        state.bannerUrl = await uploadImage(banner, 'news')
+        await addDoc(collection(firebase.value.fireStore, 'news'), {
+            ...state,
+            publishedAt: Timestamp.now(),
+        })
         success.value = true
-    } catch (err) {
+        toast.add({ title: 'Article published', description: state.title, color: 'success' })
+    } catch (error) {
+        toast.add({ title: 'Could not publish the article', description: fetchErrorMessage(error), color: 'error' })
+    } finally {
         isLoading.value = false
     }
 }

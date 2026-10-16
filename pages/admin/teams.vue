@@ -40,7 +40,7 @@
 				icon="i-heroicons-exclamation-triangle"
 				title="Could not load teams"
 				:description="loadError"
-				class="m-4"
+				class="m-4 w-auto"
 			/>
 
 			<UTable

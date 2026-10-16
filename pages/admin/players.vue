@@ -59,7 +59,7 @@
 				icon="i-heroicons-exclamation-triangle"
 				title="Could not load players"
 				:description="loadError"
-				class="m-4"
+				class="m-4 w-auto"
 			/>
 
 			<UTable
@@ -270,21 +270,15 @@
 
 <script setup lang="ts">
 	import { getPaginationRowModel } from "@tanstack/vue-table";
-	import {
-		ref as storageRef,
-		uploadBytes,
-		getDownloadURL,
-	} from "firebase/storage";
 	import type { TableColumn } from "@nuxt/ui";
-	import type { FirebaseState } from "~/types/Firebase";
 	import type { Player } from "~/types/Player";
 
 	definePageMeta({
 		layout: "admin",
 	});
 
-	const firebase = useState<FirebaseState>("firebase");
 	const adminFetch = useAdminFetch();
+	const uploadImage = useImageUpload();
 	const toast = useToast();
 
 	const players = ref<Player[]>([]);
@@ -421,27 +415,13 @@
 		formOpen.value = true;
 	};
 
-	const uploadPhoto = async (photo: File, playerName: string) => {
-		const name = playerName
-			.trim()
-			.toLowerCase()
-			.replace(/[^a-z0-9]+/g, "_");
-		const extension = photo.name.split(".").pop();
-		const fileRef = storageRef(
-			firebase.value.storage,
-			`players/${name}_${Date.now()}.${extension}`,
-		);
-		const snapshot = await uploadBytes(fileRef, photo);
-		return getDownloadURL(snapshot.ref);
-	};
-
 	const savePlayer = async (player: PlayerInput, photo: File | null) => {
 		saving.value = true;
 		try {
 			if (photo)
 				player = {
 					...player,
-					photo_url: await uploadPhoto(photo, player.full_name),
+					photo_url: await uploadImage(photo, "players"),
 				};
 
 			if (editing.value) {

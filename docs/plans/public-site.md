@@ -9,6 +9,8 @@ Work happens in two phases. Each phase starts by running its migration in the Su
 | 1 | New header and footer, the new home page (hero and sponsors), `/news`, image uploads moved to Supabase, admin Sponsors and Enquiries | [0001_images_and_sponsors.sql](../../supabase/migrations/0001_images_and_sponsors.sql) |
 | 2 | The shop: products, cart, guest checkout with Paystack (test mode), order tracking, admin Products, Orders and Shop settings, featured products on the home page | [0002_shop.sql](../../supabase/migrations/0002_shop.sql) |
 
+**Sample data.** [supabase/seed/seed.mjs](../../supabase/seed/seed.mjs) fills the project with made-up teams, fixtures around today's date, partner sponsors and shop products, so every page has something to show. Run it with `npm run seed`. Running it again skips what is already there, and `npm run seed:undo` removes it all, keeping the Valiant FC crest and Island Casino.
+
 ## Decisions
 
 **Site structure**

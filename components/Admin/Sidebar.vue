@@ -43,12 +43,27 @@
 						:aria-current="isActive(item.to) ? 'page' : undefined"
 						@click="$emit('navigate')"
 					>
-						<UIcon
-							:name="isActive(item.to) ? item.activeIcon : item.icon"
-							class="size-5 shrink-0"
-							aria-hidden="true"
-						/>
-						<span :class="labelClass">{{ item.label }}</span>
+						<span class="relative shrink-0">
+							<UIcon
+								:name="isActive(item.to) ? item.activeIcon : item.icon"
+								class="size-5"
+								aria-hidden="true"
+							/>
+							<!-- collapsed rail: a dot stands in for the count -->
+							<span
+								v-if="!expanded && badgeFor(item)"
+								class="absolute -right-1 -top-1 size-2.5 rounded-full bg-primary ring-2 ring-white"
+								aria-hidden="true"
+							/>
+						</span>
+						<span :class="labelClass" class="flex-1">{{ item.label }}</span>
+						<span
+							v-if="badgeFor(item)"
+							:class="expanded ? '' : 'sr-only'"
+							class="ms-auto rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white"
+							>{{ badgeFor(item)
+							}}<span class="sr-only"> new</span></span
+						>
 					</NuxtLink>
 				</li>
 			</ul>
@@ -188,10 +203,38 @@
 			icon: "i-bi-calendar-event",
 			activeIcon: "i-bi-calendar-event-fill",
 		},
+		{
+			label: "Sponsors",
+			to: "/admin/sponsors",
+			icon: "i-bi-building",
+			activeIcon: "i-bi-building-fill",
+		},
+		{
+			label: "Enquiries",
+			to: "/admin/enquiries",
+			icon: "i-bi-inbox",
+			activeIcon: "i-bi-inbox-fill",
+			// shows how many enquiries are still new
+			badge: true,
+		},
 	];
 
 	const route = useRoute();
 	const isActive = (to: string) => route.path.startsWith(to);
+
+	const { count: newEnquiries, refresh: refreshEnquiryCount } =
+		useNewEnquiryCount();
+	const badgeFor = (item: { badge?: boolean }) =>
+		item.badge && newEnquiries.value > 0 ? newEnquiries.value : 0;
+
+	// once someone is signed in, and again on each page change
+	watch(
+		() => [props.user?.email, route.path],
+		() => {
+			if (props.user) refreshEnquiryCount();
+		},
+		{ immediate: true },
+	);
 
 	const systemOpen = ref(false);
 

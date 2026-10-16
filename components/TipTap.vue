@@ -38,7 +38,7 @@
             <label @change="addImage" :class="{ 'is-active': editor.isActive('image') }"
                 class="rounded-md p-2 border border-primary bg-primary text-white " for="image">
                 <UIcon name="i-material-symbols-add-photo-alternate-outline" class="text-2xl" />
-                <input type="file" accept=".jpg, .png, .jpeg, .gif" class="hidden" id="image" ref="imageInput" />
+                <input type="file" :accept="IMAGE_ACCEPT" class="hidden" id="image" ref="imageInput" />
             </label>
             <UButton @click="editor?.chain().focus().setHorizontalRule().run()">
                 <UIcon name="i-carbon-ruler" class="text-2xl" />
@@ -59,9 +59,6 @@
 </template>
 
 <script setup lang="ts">
-import { uploadBytes, ref as storageRef, getDownloadURL } from 'firebase/storage'
-// import { storage } from '~/config/firebase';
-import { type FirebaseState } from '~/types/Firebase'
 import { useEditor, EditorContent, type Content } from '@tiptap/vue-3'
 import TiptapStarterKit from '@tiptap/starter-kit'
 import Link from '@tiptap/extension-link';
@@ -73,7 +70,8 @@ const props = defineProps({
     }
 })
 const emits = defineEmits(['update:modelValue'])
-const firebase = useState<FirebaseState>('firebase')
+const uploadImage = useImageUpload()
+const toast = useToast()
 const editor = useEditor({
     extensions: [TiptapStarterKit.configure({
         // StarterKit v3 bundles Link; it is configured separately below
@@ -123,24 +121,19 @@ const createLink = () => {
     // }
 }
 
-const addImage = () => {
+const addImage = async () => {
+    const file = imageInput.value?.files?.[0]
+    if (!file) return
     try {
-
-        if (imageInput.value?.files) {
-            const file = imageInput.value?.files[0]
-            const fileName = file.name.replaceAll(' ', '_')
-            uploadBytes(storageRef(firebase.value.storage, `newsAssets/${fileName}`), file).then(snapshot => {
-                getDownloadURL(snapshot.ref).then(url => {
-                    editor.value?.chain().focus().setImage({ src: url }).run()
-                    editor.value?.commands.createParagraphNear()
-                })
-            })
-
-        }
-    } catch (e) {
-        console.error(e)
+        const url = await uploadImage(file, 'news')
+        editor.value?.chain().focus().setImage({ src: url }).run()
+        editor.value?.commands.createParagraphNear()
+    } catch (error) {
+        toast.add({ title: 'Could not add the image', description: fetchErrorMessage(error), color: 'error' })
+    } finally {
+        // choosing the same file again should upload it again
+        imageInput.value!.value = ''
     }
-
 }
 </script>
 

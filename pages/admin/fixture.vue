@@ -62,7 +62,7 @@
 				icon="i-heroicons-exclamation-triangle"
 				title="Could not load fixtures"
 				:description="loadError"
-				class="m-4"
+				class="m-4 w-auto"
 			/>
 			<UAlert
 				v-else-if="!loading && teams.length < 2"
@@ -71,7 +71,7 @@
 				icon="i-heroicons-information-circle"
 				title="Add at least two teams before adding fixtures"
 				description="Teams can also be created while importing a spreadsheet."
-				class="m-4"
+				class="m-4 w-auto"
 				:actions="[
 					{
 						label: 'Go to Teams',
