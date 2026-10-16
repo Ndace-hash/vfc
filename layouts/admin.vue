@@ -1,12 +1,12 @@
 <template>
-	<div class="min-h-screen bg-admin-light">
+	<div class="min-h-screen bg-default">
 		<!-- phones and tablets: a top bar whose menu button opens the sidebar as a drawer -->
 		<header
-			class="lg:hidden sticky top-0 z-30 flex h-14 items-center gap-2 bg-admin-dark px-2 text-white shadow-md"
+			class="lg:hidden sticky top-0 z-30 flex h-14 items-center gap-2 border-b border-default bg-default px-2 text-highlighted"
 		>
 			<button
 				type="button"
-				class="grid size-11 place-items-center rounded-lg hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+				class="grid size-11 place-items-center rounded-lg hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary"
 				aria-label="Open menu"
 				:aria-expanded="mobileOpen"
 				@click="mobileOpen = true"
@@ -21,7 +21,7 @@
 			side="left"
 			title="Admin menu"
 			description="Go to a section or manage your account"
-			:ui="{ content: 'max-w-72 bg-admin-dark ring-0' }"
+			:ui="{ content: 'max-w-72' }"
 		>
 			<template #content>
 				<AdminSidebar
@@ -37,10 +37,11 @@
 
 		<!-- desktop: a rail that can be collapsed to icons, and opens while hovered -->
 		<aside
-			class="hidden lg:block fixed inset-y-0 left-0 z-40 transition-[width,box-shadow] duration-200 ease-out motion-reduce:transition-none"
+			class="hidden lg:block fixed inset-y-0 left-0 z-40 border-e border-default transition-[width,box-shadow] duration-200 ease-out motion-reduce:transition-none"
 			:class="[
 				expanded ? 'w-64' : 'w-[72px]',
-				collapsed && expanded ? 'shadow-2xl' : 'sidebar',
+				// opened over the page by hover or focus: lift it off the content
+				collapsed && expanded ? 'shadow-lg' : '',
 			]"
 			@mouseenter="hoverStart"
 			@mouseleave="hoverEnd"
@@ -59,7 +60,7 @@
 			/>
 		</aside>
 
-		<!-- flow-root keeps page headings' top margins inside the green area -->
+		<!-- flow-root keeps page headings' top margins inside main -->
 		<main
 			class="flow-root transition-[margin] duration-200 ease-out motion-reduce:transition-none"
 			:class="collapsed ? 'lg:ms-[72px]' : 'lg:ms-64'"
@@ -259,9 +260,3 @@
 		}
 	};
 </script>
-
-<style scoped lang="scss">
-	.sidebar {
-		box-shadow: 1px 0px 8px 2px #757575;
-	}
-</style>

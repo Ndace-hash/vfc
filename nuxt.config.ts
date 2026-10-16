@@ -38,6 +38,8 @@ export default defineNuxtConfig({
 	ui: {
 		// fonts are loaded from the Google Fonts link above
 		fonts: false,
+		// the style guide is a white base; without this, devices set to dark mode get dark surfaces
+		colorMode: false,
 	},
 	content: {
 		experimental: {

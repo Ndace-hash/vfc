@@ -1,15 +1,15 @@
 <template>
     <section>
 
-        <div class="bg-admin-light">
+        <div class="border-b border-default">
 
-            <div class="ps-4 py-2 flex gap-6 text-white uppercase max-w-[1024px] mx-auto">
+            <div class="ps-4 flex gap-6 max-w-[1024px] mx-auto">
                 <button @click.prevent="viewTab('fixture')"
-                    :class="[($route.query.tab == 'fixture' || $route.query.tab == null) ? 'border-b-2 border-b-white' : '', 'py-1']">Fixture</button>
+                    :class="[tabClass($route.query.tab == 'fixture' || $route.query.tab == null)]">Fixture</button>
                 <button @click.prevent="viewTab('result')"
-                    :class="[($route.query.tab == 'result') ? 'border-b-2 border-b-white' : '', 'py-1']">Result</button>
+                    :class="[tabClass($route.query.tab == 'result')]">Result</button>
                 <button @click.prevent="viewTab('table')"
-                    :class="[$route.query.tab == 'table' ? 'border-b-2 border-b-white' : '', 'py-1']">Table</button>
+                    :class="[tabClass($route.query.tab == 'table')]">Table</button>
             </div>
         </div>
 
@@ -45,6 +45,11 @@ const viewTab = (tab: string) => {
     })
     currentTab.value = tabsObject[tab]
 }
+const tabClass = (active: boolean) => [
+    // on the buttons themselves: buttons don't inherit text-transform
+    'py-3 -mb-px border-b-2 uppercase',
+    active ? 'border-primary text-primary font-semibold' : 'border-transparent text-toned hover:text-highlighted',
+]
 const Fixtures = resolveComponent('Fixtures')
 const Results = resolveComponent('FixturesResult')
 const Table = resolveComponent('FixturesTable')

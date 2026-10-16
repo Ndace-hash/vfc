@@ -7,13 +7,13 @@
         <UForm :state="state" class="flex flex-col gap-6" @submit="publish" :schema="schema">
             <UFormField class="w-full mx-auto" required size="lg" name="title">
                 <template #label>
-                    <p class="inline text-white font-semibold text-xl  me-1">Title</p>
+                    <p class="inline text-highlighted font-semibold text-xl  me-1">Title</p>
                 </template>
                 <UInput v-model="state.title" placeholder="New update on Valiant FC" class="mt-2" />
             </UFormField>
             <UFormField class="flex flex-col gap-2" required name="banner">
                 <template #label>
-                    <p class="inline text-white font-semibold text-sm  me-1">Add Banner Image</p>
+                    <p class="inline text-highlighted font-semibold text-sm  me-1">Add Banner Image</p>
 
                 </template>
                 <template #default>
@@ -36,7 +36,7 @@
                 </template>
             </UFormField>
             <UFormField name="content">
-                <TipTap class=" bg-white w-full mx-auto rounded-[8px] py-6 px-8" v-model="state.content" />
+                <TipTap class=" bg-default ring-1 ring-default shadow-sm w-full mx-auto rounded-[8px] py-6 px-8" v-model="state.content" />
 
             </UFormField>
             <UFormField class=" flex justify-end">

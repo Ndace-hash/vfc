@@ -1,5 +1,5 @@
 <template>
-	<div class="flex h-full flex-col bg-admin-dark text-white">
+	<div class="flex h-full flex-col bg-default text-default">
 		<div class="flex h-16 shrink-0 items-center gap-3 px-4">
 			<img src="/valiant.png" alt="" class="size-9 shrink-0" />
 			<span :class="labelClass" class="text-[15px] font-semibold"
@@ -8,7 +8,7 @@
 			<button
 				v-if="collapsible && expanded"
 				type="button"
-				class="ms-auto grid size-9 shrink-0 place-items-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white"
+				class="ms-auto grid size-9 shrink-0 place-items-center rounded-lg text-muted hover:bg-elevated hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
 				:aria-label="collapsed ? 'Keep sidebar open' : 'Collapse sidebar'"
 				:aria-pressed="!collapsed"
 				@click="$emit('toggle')"
@@ -23,7 +23,7 @@
 			<button
 				v-if="closable"
 				type="button"
-				class="ms-auto grid size-11 shrink-0 place-items-center rounded-lg text-white/70 hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-white"
+				class="ms-auto grid size-11 shrink-0 place-items-center rounded-lg text-muted hover:bg-elevated hover:text-highlighted focus-visible:outline-2 focus-visible:outline-primary"
 				aria-label="Close menu"
 				@click="$emit('navigate')"
 			>
@@ -53,7 +53,7 @@
 				</li>
 			</ul>
 
-			<div class="mt-4 border-t border-white/10 pt-4">
+			<div class="mt-4 border-t border-default pt-4">
 				<button
 					type="button"
 					:class="itemClass(false)"
@@ -68,7 +68,7 @@
 					<UIcon
 						v-if="expanded"
 						name="i-bi-chevron-down"
-						class="size-4 shrink-0 text-white/60 transition-transform duration-200 motion-reduce:transition-none"
+						class="size-4 shrink-0 text-muted transition-transform duration-200 motion-reduce:transition-none"
 						:class="systemOpen ? 'rotate-180' : ''"
 						aria-hidden="true"
 					/>
@@ -100,7 +100,7 @@
 			</div>
 		</nav>
 
-		<div class="shrink-0 border-t border-white/10 p-3">
+		<div class="shrink-0 border-t border-default p-3">
 			<UDropdownMenu
 				:items="accountMenu"
 				:content="{ side: 'top', align: 'start' }"
@@ -109,11 +109,11 @@
 			>
 				<button
 					type="button"
-					class="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+					class="flex min-h-11 w-full items-center gap-3 rounded-lg px-2 py-1.5 text-left hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary"
 					:aria-label="`Account: ${user?.name ?? 'signed in'}. Opens sign out`"
 				>
 					<span
-						class="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold"
+						class="grid size-9 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-white"
 						aria-hidden="true"
 						>{{ initials }}</span
 					>
@@ -123,14 +123,14 @@
 						}}</span>
 						<span
 							v-if="user?.email && user.email !== user.name"
-							class="block truncate text-xs text-white/60"
+							class="block truncate text-xs text-muted"
 							>{{ user.email }}</span
 						>
 					</span>
 					<UIcon
 						v-if="expanded"
 						name="i-bi-chevron-expand"
-						class="size-4 shrink-0 text-white/60"
+						class="size-4 shrink-0 text-muted"
 						aria-hidden="true"
 					/>
 				</button>
@@ -199,10 +199,10 @@
 	const labelClass = computed(() => (props.expanded ? "truncate" : "sr-only"));
 
 	const itemClass = (active: boolean) => [
-		"flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-[15px] transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-white",
+		"flex min-h-11 w-full items-center gap-3 rounded-lg px-3 text-[15px] transition-colors motion-reduce:transition-none focus-visible:outline-2 focus-visible:outline-primary",
 		active
-			? "bg-white/15 font-semibold text-white"
-			: "text-white/80 hover:bg-white/10 hover:text-white",
+			? "bg-primary/10 font-semibold text-brand-700"
+			: "text-toned hover:bg-elevated hover:text-highlighted",
 	];
 
 	// "Chinedu Okafor" -> "CO", "admin@valiantfc.com" -> "A"

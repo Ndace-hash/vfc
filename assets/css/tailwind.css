@@ -1,9 +1,28 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@theme {
-	--color-admin-light: #9eb0a2;
-	--color-admin-dark: #3b4a3f;
+/* club green from the logo; 500 is the brand green, 600 is the text-safe
+   green (see CLAUDE.md). app.config.ts makes this palette Nuxt UI's primary.
+   static: Nuxt UI reads these through --ui-primary, which Tailwind can't see,
+   so without it unused shades (including 500) are dropped */
+@theme static {
+	--color-brand-50: #e9f9f0;
+	--color-brand-100: #c9f0da;
+	--color-brand-200: #95e2b8;
+	--color-brand-300: #58cf8e;
+	--color-brand-400: #1fbb69;
+	--color-brand-500: #00a553;
+	--color-brand-600: #008542;
+	--color-brand-700: #006b36;
+	--color-brand-800: #00552c;
+	--color-brand-900: #004625;
+	--color-brand-950: #002815;
+}
+
+/* primary is the text-safe 600 rather than Nuxt UI's default 500: white
+   labels on 500 are only 3.2:1, on 600 they are 4.7:1 */
+:root {
+	--ui-primary: var(--ui-color-primary-600);
 }
 
 /* Tailwind v3 defaults the existing markup relies on */

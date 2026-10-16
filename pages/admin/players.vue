@@ -3,13 +3,13 @@
 		<Title>Players | Valiant FC</Title>
 	</Head>
 	<section class="px-4">
-		<h1 class="text-white capitalize text-2xl max-w-[1100px] mx-auto my-6">
+		<h1 class="text-highlighted capitalize text-2xl max-w-[1100px] mx-auto my-6">
 			Team <span class="font-semibold">Management</span>
 		</h1>
 
-		<div class="bg-white max-w-[1100px] mx-auto rounded-[8px] shadow-lg my-10">
+		<div class="bg-default max-w-[1100px] mx-auto rounded-[8px] shadow-sm ring-1 ring-default my-10">
 			<div
-				class="flex flex-wrap items-center gap-2 p-4 justify-between border-b border-admin-light"
+				class="flex flex-wrap items-center gap-2 p-4 justify-between border-b border-default"
 			>
 				<div class="flex flex-wrap items-center gap-2">
 					<UButton icon="i-heroicons-plus-20-solid" @click="openForm()"
@@ -172,7 +172,7 @@
 			</UTable>
 
 			<div
-				class="flex flex-wrap items-center justify-between gap-2 p-4 border-t border-admin-light text-sm"
+				class="flex flex-wrap items-center justify-between gap-2 p-4 border-t border-default text-sm"
 			>
 				<span class="text-muted">{{ rangeLabel }}</span>
 				<UPagination
@@ -195,7 +195,7 @@
 			"
 			:ui="{
 				title: 'text-primary font-bold text-xl',
-				description: 'text-sm text-admin-dark',
+				description: 'text-sm text-muted',
 			}"
 		>
 			<template #body>
@@ -216,7 +216,7 @@
 			:ui="{
 				content: 'sm:max-w-5xl',
 				title: 'text-primary font-bold text-xl',
-				description: 'text-sm text-admin-dark',
+				description: 'text-sm text-muted',
 			}"
 		>
 			<template #body>

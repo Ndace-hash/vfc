@@ -8,7 +8,7 @@
 			/>
 		</div>
 		<div
-			class="flex items-center gap-2 border px-2 py-1 bg-admin-light text-white"
+			class="flex items-center gap-2 rounded-md border border-default px-2 py-1 text-highlighted"
 			v-if="game.played"
 		>
 			<span class="text-3xl font-bold">{{ game.goals.home }}</span>
@@ -18,7 +18,7 @@
 			<span class="text-3xl font-bold">{{ game.goals.away }}</span>
 		</div>
 		<div
-			class="flex flex-col items-center border px-2 py-1 bg-admin-light text-white"
+			class="flex flex-col items-center rounded-md border border-default px-2 py-1 text-highlighted"
 			v-if="!game.played"
 		>
 			<span class="text-2xl font-bold">{{ game.kickoff.time }}</span>
