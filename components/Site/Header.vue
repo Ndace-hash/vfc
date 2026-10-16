@@ -30,10 +30,24 @@
 				</ul>
 			</nav>
 
+			<NuxtLink
+				to="/shop/cart"
+				class="relative -me-1 grid size-11 shrink-0 place-items-center rounded-lg text-highlighted hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary max-md:ms-auto md:ms-0"
+				:aria-label="cartCount ? `Cart, ${cartCount} ${cartCount === 1 ? 'item' : 'items'}` : 'Cart'"
+			>
+				<UIcon name="i-bi-bag" class="size-6" />
+				<span
+					v-if="cartCount"
+					class="absolute right-0.5 top-0.5 grid h-5 min-w-5 place-items-center rounded-full bg-primary px-1 text-xs font-semibold text-white tabular-nums"
+					aria-hidden="true"
+					>{{ cartCount > 99 ? "99+" : cartCount }}</span
+				>
+			</NuxtLink>
+
 			<!-- phones: a menu button opens the links -->
 			<button
 				type="button"
-				class="ms-auto grid size-11 place-items-center rounded-lg text-highlighted hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary md:hidden"
+				class="grid size-11 place-items-center rounded-lg text-highlighted hover:bg-elevated focus-visible:outline-2 focus-visible:outline-primary md:hidden"
 				aria-label="Open menu"
 				:aria-expanded="menuOpen"
 				@click="menuOpen = true"
@@ -74,6 +88,8 @@
 <script setup lang="ts">
 	const route = useRoute();
 	const isActive = (to: string) => route.path.startsWith(to);
+
+	const { count: cartCount } = useCart();
 
 	const menuOpen = ref(false);
 	watch(

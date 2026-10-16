@@ -2,6 +2,7 @@
 	<div>
 		<h1 class="sr-only">{{ CLUB_NAME }}</h1>
 		<HomeHero />
+		<HomeFeaturedProducts />
 		<HomeSponsors />
 	</div>
 </template>
@@ -10,6 +11,6 @@
 	useSeoMeta({
 		title: CLUB_NAME,
 		description:
-			"Results, fixtures and sponsors of Valiant FC, a football club from Lagos, Nigeria.",
+			"Results, fixtures, the club shop and sponsors of Valiant FC, a football club from Lagos, Nigeria.",
 	});
 </script>

@@ -5,5 +5,5 @@ export default defineEventHandler(async () => {
 		.select("id", { count: "exact", head: true })
 		.eq("status", "new");
 	failOnSupabaseError(error, "Could not count enquiries");
-	return { new: count ?? 0 };
+	return { count: count ?? 0 };
 });

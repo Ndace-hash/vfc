@@ -131,6 +131,7 @@ New settings in `.env`: `PAYSTACK_SECRET_KEY` (a `sk_test_…` key for now).
 - [ ] Contact email for the footer.
 - [ ] Sponsor names, logos, website links and which one is the main sponsor.
 - [ ] Pickup address, Lagos delivery fee and the outside-Lagos message.
-- [ ] Shop policies text (delivery, returns, privacy).
-- [ ] Paystack test secret key now; apply for live payments when the shop is ready.
+- [ ] Shop policies text (delivery, returns, privacy), in [content/shop-policies.md](../../content/shop-policies.md).
+- [ ] Paystack test secret key now, in `.env` as `PAYSTACK_SECRET_KEY`; apply for live payments when the shop is ready.
+- [ ] Once the site is deployed, set the webhook URL in Paystack (Settings → API Keys & Webhooks) to `https://<site>/api/paystack/webhook`.
 - [ ] Products: names, prices, sizes, stock and photos.

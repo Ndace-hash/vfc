@@ -180,7 +180,7 @@
 
 	const adminFetch = useAdminFetch();
 	const toast = useToast();
-	const { count: newCount } = useNewEnquiryCount();
+	const { count: newCount } = useAdminBadge("enquiries");
 
 	const enquiries = ref<SponsorEnquiry[]>([]);
 	const loading = ref(false);

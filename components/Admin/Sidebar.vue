@@ -35,38 +35,58 @@
 			aria-label="Admin"
 			class="flex-1 overflow-x-hidden overflow-y-auto px-3 py-2"
 		>
-			<ul class="flex flex-col gap-1">
-				<li v-for="item in NAV_ITEMS" :key="item.to">
-					<NuxtLink
-						:to="item.to"
-						:class="itemClass(isActive(item.to))"
-						:aria-current="isActive(item.to) ? 'page' : undefined"
-						@click="$emit('navigate')"
-					>
-						<span class="relative shrink-0">
-							<UIcon
-								:name="isActive(item.to) ? item.activeIcon : item.icon"
-								class="size-5"
-								aria-hidden="true"
-							/>
-							<!-- collapsed rail: a dot stands in for the count -->
-							<span
-								v-if="!expanded && badgeFor(item)"
-								class="absolute -right-1 -top-1 size-2.5 rounded-full bg-primary ring-2 ring-white"
-								aria-hidden="true"
-							/>
-						</span>
-						<span :class="labelClass" class="flex-1">{{ item.label }}</span>
-						<span
-							v-if="badgeFor(item)"
-							:class="expanded ? '' : 'sr-only'"
-							class="ms-auto rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white"
-							>{{ badgeFor(item)
-							}}<span class="sr-only"> new</span></span
+			<section
+				v-for="(group, index) in NAV_GROUPS"
+				:key="group.label"
+				:aria-labelledby="`nav-group-${index}`"
+				:class="index ? 'mt-4' : ''"
+			>
+				<!-- collapsed rail: a line stands in for the group name -->
+				<h2
+					:id="`nav-group-${index}`"
+					:class="expanded ? 'px-3 pb-1' : 'sr-only'"
+					class="text-xs font-semibold uppercase tracking-wide text-muted"
+				>
+					{{ group.label }}
+				</h2>
+				<div
+					v-if="!expanded && index"
+					class="mx-3 mb-3 border-t border-default"
+					aria-hidden="true"
+				/>
+				<ul class="flex flex-col gap-1">
+					<li v-for="item in group.items" :key="item.to">
+						<NuxtLink
+							:to="item.to"
+							:class="itemClass(isActive(item.to))"
+							:aria-current="isActive(item.to) ? 'page' : undefined"
+							@click="$emit('navigate')"
 						>
-					</NuxtLink>
-				</li>
-			</ul>
+							<span class="relative shrink-0">
+								<UIcon
+									:name="isActive(item.to) ? item.activeIcon : item.icon"
+									class="size-5"
+									aria-hidden="true"
+								/>
+								<!-- collapsed rail: a dot stands in for the count -->
+								<span
+									v-if="!expanded && badgeFor(item)"
+									class="absolute -right-1 -top-1 size-2.5 rounded-full bg-primary ring-2 ring-white"
+									aria-hidden="true"
+								/>
+							</span>
+							<span :class="labelClass" class="flex-1">{{ item.label }}</span>
+							<span
+								v-if="badgeFor(item)"
+								:class="expanded ? '' : 'sr-only'"
+								class="ms-auto rounded-full bg-primary px-2 py-0.5 text-xs font-semibold text-white"
+								>{{ badgeFor(item)
+								}}<span class="sr-only"> {{ item.badgeLabel }}</span></span
+							>
+						</NuxtLink>
+					</li>
+				</ul>
+			</section>
 
 			<div class="mt-4 border-t border-default pt-4">
 				<button
@@ -156,6 +176,7 @@
 
 <script setup lang="ts">
 	import type { DropdownMenuItem } from "@nuxt/ui";
+	import type { AdminBadge } from "~/composables/useAdminBadge";
 
 	const props = defineProps<{
 		// show labels; when false only the icons are visible
@@ -178,60 +199,107 @@
 		"menu-open": [open: boolean];
 	}>();
 
-	const NAV_ITEMS = [
+	interface NavItem {
+		label: string;
+		to: string;
+		icon: string;
+		activeIcon: string;
+		// a count shown next to the item, and what it counts (for screen readers)
+		badge?: AdminBadge;
+		badgeLabel?: string;
+	}
+
+	const NAV_GROUPS: { label: string; items: NavItem[] }[] = [
 		{
-			label: "Players",
-			to: "/admin/players",
-			icon: "i-bi-people",
-			activeIcon: "i-bi-people-fill",
-		},
-		{
-			label: "Teams",
-			to: "/admin/teams",
-			icon: "i-bi-shield",
-			activeIcon: "i-bi-shield-fill",
-		},
-		{
-			label: "News",
-			to: "/admin/news",
-			icon: "i-bi-newspaper",
-			activeIcon: "i-bi-newspaper",
-		},
-		{
-			label: "Fixtures",
-			to: "/admin/fixture",
-			icon: "i-bi-calendar-event",
-			activeIcon: "i-bi-calendar-event-fill",
+			label: "Club",
+			items: [
+				{
+					label: "Players",
+					to: "/admin/players",
+					icon: "i-bi-people",
+					activeIcon: "i-bi-people-fill",
+				},
+				{
+					label: "Teams",
+					to: "/admin/teams",
+					icon: "i-bi-shield",
+					activeIcon: "i-bi-shield-fill",
+				},
+				{
+					label: "News",
+					to: "/admin/news",
+					icon: "i-bi-newspaper",
+					activeIcon: "i-bi-newspaper",
+				},
+				{
+					label: "Fixtures",
+					to: "/admin/fixture",
+					icon: "i-bi-calendar-event",
+					activeIcon: "i-bi-calendar-event-fill",
+				},
+			],
 		},
 		{
 			label: "Sponsors",
-			to: "/admin/sponsors",
-			icon: "i-bi-building",
-			activeIcon: "i-bi-building-fill",
+			items: [
+				{
+					label: "Sponsors",
+					to: "/admin/sponsors",
+					icon: "i-bi-building",
+					activeIcon: "i-bi-building-fill",
+				},
+				{
+					label: "Enquiries",
+					to: "/admin/enquiries",
+					icon: "i-bi-inbox",
+					activeIcon: "i-bi-inbox-fill",
+					badge: "enquiries",
+					badgeLabel: "new",
+				},
+			],
 		},
 		{
-			label: "Enquiries",
-			to: "/admin/enquiries",
-			icon: "i-bi-inbox",
-			activeIcon: "i-bi-inbox-fill",
-			// shows how many enquiries are still new
-			badge: true,
+			label: "Shop",
+			items: [
+				{
+					label: "Orders",
+					to: "/admin/orders",
+					icon: "i-bi-receipt",
+					activeIcon: "i-bi-receipt-cutoff",
+					badge: "orders",
+					badgeLabel: "to handle",
+				},
+				{
+					label: "Products",
+					to: "/admin/products",
+					icon: "i-bi-bag",
+					activeIcon: "i-bi-bag-fill",
+				},
+				{
+					label: "Shop settings",
+					to: "/admin/shop-settings",
+					icon: "i-bi-sliders",
+					activeIcon: "i-bi-sliders",
+				},
+			],
 		},
 	];
 
 	const route = useRoute();
 	const isActive = (to: string) => route.path.startsWith(to);
 
-	const { count: newEnquiries, refresh: refreshEnquiryCount } =
-		useNewEnquiryCount();
-	const badgeFor = (item: { badge?: boolean }) =>
-		item.badge && newEnquiries.value > 0 ? newEnquiries.value : 0;
+	const badges = {
+		enquiries: useAdminBadge("enquiries"),
+		orders: useAdminBadge("orders"),
+	};
+	const badgeFor = (item: NavItem) =>
+		item.badge ? badges[item.badge].count.value : 0;
 
 	// once someone is signed in, and again on each page change
 	watch(
 		() => [props.user?.email, route.path],
 		() => {
-			if (props.user) refreshEnquiryCount();
+			if (props.user) for (const badge of Object.values(badges)) badge.refresh();
 		},
 		{ immediate: true },
 	);

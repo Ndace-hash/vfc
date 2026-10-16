@@ -64,6 +64,8 @@
 		{ label: "Home", to: "/" },
 		...SITE_LINKS,
 		{ label: "Become a sponsor", to: "/#sponsors" },
+		{ label: "Track an order", to: "/shop/track" },
+		{ label: "Shop policies", to: "/shop/policies" },
 	];
 	const year = new Date().getFullYear();
 </script>

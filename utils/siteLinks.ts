@@ -1,10 +1,10 @@
 export const CLUB_NAME = "Valiant FC";
 
-// The public site's main sections, used by the header and the footer sitemap.
-// Shop joins in Phase 2 (docs/plans/public-site.md).
+// The public site's main sections, used by the header and the footer sitemap
 export const SITE_LINKS = [
 	{ label: "Fixtures", to: "/fixtures" },
 	{ label: "Squad", to: "/players" },
+	{ label: "Shop", to: "/shop" },
 	{ label: "News", to: "/news" },
 	{ label: "Club", to: "/club" },
 ];

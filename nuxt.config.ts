@@ -74,6 +74,18 @@ export default defineNuxtConfig({
 				rateLimiter: { tokensPerInterval: 5, interval: 10 * 60 * 1000 },
 			},
 		},
+		// each attempt creates an order and a Paystack payment
+		"/api/shop/checkout": {
+			security: {
+				rateLimiter: { tokensPerInterval: 10, interval: 10 * 60 * 1000 },
+			},
+		},
+		// the confirmation page checks a few times while payment is confirmed
+		"/api/shop/orders/**": {
+			security: {
+				rateLimiter: { tokensPerInterval: 60, interval: 10 * 60 * 1000 },
+			},
+		},
 	},
 	css: ["~/assets/css/tailwind.css", "v-calendar/style.css"],
 	runtimeConfig: {
@@ -98,6 +110,8 @@ export default defineNuxtConfig({
 		adminUniverseDomain: "",
 		// server only: bypasses row level security, never move this under `public`
 		supabaseSecretKey: process.env.SUPABASE_SECRET_KEY,
+		// server only: Paystack's secret key (sk_test_... until the club's account is approved)
+		paystackSecretKey: process.env.PAYSTACK_SECRET_KEY,
 		public: {
 			apiKey: "AIzaSyCiKk72rfOWD3gvbFKjGYdbb0uCs4NwW80",
 			authDomain: "valiant-fc-dev.firebaseapp.com",
